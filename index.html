@@ -1,0 +1,3317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>너라면 어떻게 할래? — 피부에 닿는 민주주의</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+
+/* ─────────────────────────────────────────────
+   토큰: 두 개의 세계
+────────────────────────────────────────────── */
+:root{
+  --ink:#FFF7EA;         /* 낮 — 밝은 크림색 배경 */
+  --ink-2:#FFFFFF;       /* 카드 */
+  --paper:#3B3630;       /* 본문 글자 */
+  --paper-dim:#6F675B;   /* 흐린 글자 */
+  --ripple:#3D7BF5;      /* 물결 파랑 */
+  --signal:#E8890C;      /* 선택의 순간 주황 */
+  --ember:#E4573D;       /* 비용·결과 */
+  --sprout:#2E9E74;      /* 나이테·성장 초록 */
+  --chat-bg:#E9EDF3;     /* 소셜 세계 */
+  --chat-mine:#2E6BE6;
+  --chat-ink:#232B38;
+  --serif:'Gowun Batang','Nanum Myeongjo',serif;
+  --sans:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--ink);
+  font-family:var(--sans);
+  color:var(--paper);
+  display:flex;justify-content:center;
+  min-height:100dvh;
+}
+#app{
+  width:100%;max-width:480px;min-height:100dvh;
+  position:relative;overflow-x:hidden;
+  background:var(--ink);
+  display:flex;flex-direction:column;
+}
+@media(min-width:560px){
+  body{align-items:center;padding:24px 0;
+    background:
+      radial-gradient(700px 420px at 10% -5%, #FFE3C2 0%, transparent 60%),
+      radial-gradient(700px 460px at 95% 5%, #DCEBFF 0%, transparent 60%),
+      radial-gradient(800px 520px at 50% 108%, #DDF2E4 0%, transparent 55%),
+      #FFF3E0;}
+  #app{min-height:min(860px,94dvh);height:min(860px,94dvh);border-radius:28px;
+    box-shadow:0 22px 56px rgba(140,100,40,.22);overflow:hidden}
+}
+
+/* 화면 전환 */
+.screen{display:none;flex:1;flex-direction:column;animation:fadeIn .5s ease;position:relative}
+.screen.on{display:flex}
+@media(min-width:560px){.screen{overflow-y:auto}.chatworld{overflow:hidden;height:auto;max-height:none}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+/* ── 성찰 세계 공통 ── */
+.night{padding:30px 26px 40px;flex:1;display:flex;flex-direction:column}
+.night::before{content:'';flex:none;height:9px;border-radius:99px;margin-bottom:20px;
+  background:linear-gradient(90deg,#FF9F68,#FFD166,#63C89B,#5D9BFF,#C792EA)}
+.night h1,.night h2,.night .serif{font-family:var(--serif)}
+.eyebrow{font-size:13px;letter-spacing:.24em;color:var(--ripple);
+  text-transform:uppercase;margin-bottom:14px;font-weight:600}
+.night h1{font-size:37px;line-height:1.3;font-weight:700;margin-bottom:8px}
+.night h2{font-size:26px;line-height:1.45;font-weight:700;margin-bottom:16px}
+.night p{font-size:17px;line-height:1.85;color:var(--paper-dim);margin-bottom:14px}
+.night p strong{color:var(--paper);font-weight:600}
+.night p.serif{font-family:var(--serif);color:var(--paper);font-size:18.5px}
+.spacer{flex:1}
+.btn{
+  font-family:var(--sans);font-size:17.5px;font-weight:700;
+  background:var(--paper);color:var(--ink);border:none;border-radius:14px;
+  padding:16px 20px;width:100%;cursor:pointer;margin-top:10px;
+  transition:transform .15s ease,opacity .15s;
+}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:transparent;color:var(--paper-dim);
+  border:1px solid rgba(59,54,48,.25);font-weight:500}
+.btn:focus-visible,.opt:focus-visible,.dot:focus-visible{
+  outline:3px solid var(--signal);outline-offset:2px}
+.note{font-size:14px;color:var(--paper-dim);opacity:.75;line-height:1.7;margin-top:14px}
+
+/* ── 자가진단 ── */
+.q-card{background:#fff;border:1.5px solid #E8EDF8;box-shadow:0 3px 10px rgba(100,120,180,.07);
+  border-radius:18px;padding:22px 20px;margin-bottom:14px}
+.q-card .q{font-family:var(--serif);font-size:18.5px;line-height:1.6;margin-bottom:18px;color:var(--paper)}
+.dots{display:flex;justify-content:space-between;align-items:center;gap:6px}
+.dot{width:40px;height:40px;border-radius:50%;border:2px solid rgba(59,54,48,.3);
+  background:transparent;cursor:pointer;flex-shrink:0;transition:.15s}
+.dot.sel{background:var(--ripple);border-color:var(--ripple)}
+.dots-label{display:flex;justify-content:space-between;font-size:13px;
+  color:var(--paper-dim);margin-top:8px}
+
+/* ── 소셜 세계: 단톡방 ── */
+.chatworld{background:var(--chat-bg);color:var(--chat-ink);flex:1;
+  height:100dvh;max-height:100dvh;overflow:hidden;
+  display:flex;flex-direction:column}
+.chat-top{background:#F7F9FC;border-bottom:1px solid #D8DEE8;
+  padding:14px 18px;display:flex;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:5}
+.chat-top .room{font-weight:700;font-size:15.5px}
+.chat-top .cnt{color:#8A94A6;font-size:13.5px}
+.chat-top .live{margin-left:auto;font-size:11px;color:#8A94A6}
+.chat-scroll{flex:1;overflow-y:auto;padding:18px 14px 130px;
+  display:flex;flex-direction:column;gap:4px}
+.msg{display:flex;gap:9px;margin-top:12px;animation:msgIn .35s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.avatar{width:38px;height:38px;border-radius:14px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;background:#CDD6E4}
+.msg .body{max-width:76%}
+.msg .name{font-size:12px;color:#69748A;margin-bottom:4px}
+.bubble{background:#fff;border-radius:4px 16px 16px 16px;padding:10px 13px;
+  font-size:16.5px;line-height:1.55;box-shadow:0 1px 2px rgba(20,30,50,.07);
+  width:fit-content;max-width:100%;word-break:keep-all}
+.msg+.msg.same{margin-top:3px}
+.msg.same .avatar{visibility:hidden;height:0}
+.msg.same .name{display:none}
+.msg.mine{flex-direction:row-reverse}
+.msg.mine .avatar,.msg.mine .name{display:none}
+.msg.mine .bubble{background:var(--chat-mine);color:#fff;
+  border-radius:16px 4px 16px 16px;margin-left:auto}
+.sysline{text-align:center;font-size:13.5px;color:#8A94A6;margin:16px 0 4px}
+.typing .bubble{color:#8A94A6;letter-spacing:2px}
+/* 밈 카드 (가상의 혐오 밈) */
+.meme{background:#fff;border-radius:4px 16px 16px 16px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(20,30,50,.12);width:230px}
+.meme .m-head{background:#39415A;color:#fff;font-weight:800;font-size:14.5px;
+  padding:10px 14px;font-style:italic}
+.meme ul{list-style:none;padding:12px 14px;font-size:13.5px;line-height:1.5}
+.meme li{padding:4px 0;border-bottom:1px dashed #E3E7EF}
+.meme li:last-child{border:none}
+.meme .m-foot{font-size:10.5px;color:#9AA3B5;padding:0 14px 10px}
+/* 내레이터 */
+.narr{align-self:center;max-width:88%;text-align:center;margin:20px 0 6px;
+  font-family:var(--serif);font-size:15.5px;line-height:1.8;color:#4A5568;
+  background:rgba(255,255,255,.55);border:1px solid #D8DEE8;
+  border-radius:14px;padding:12px 16px;animation:msgIn .5s ease}
+/* 선택지 패널 */
+.choice-panel{position:absolute;left:0;right:0;bottom:0;z-index:8;
+  background:linear-gradient(to top,var(--ink) 78%,transparent);
+  padding:44px 16px 18px;transform:translateY(105%);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.choice-panel.up{transform:none}
+.choice-panel .cp-title{font-family:var(--serif);color:var(--signal);
+  font-size:16px;margin-bottom:12px;text-align:center;letter-spacing:.02em}
+.opt{display:block;width:100%;text-align:left;background:#fff;box-shadow:0 2px 7px rgba(140,100,40,.09);
+  color:var(--paper);border:1px solid rgba(59,54,48,.16);border-radius:13px;
+  padding:15px 17px;font-size:16.5px;line-height:1.55;font-family:var(--sans);
+  cursor:pointer;margin-bottom:9px;transition:.15s}
+.opt:hover{border-color:var(--signal)}
+.opt:active{transform:scale(.985)}
+.opt .tag{display:block;font-size:13.5px;color:var(--paper-dim);margin-top:3px}
+
+/* ── 물결 지도 ── */
+.ripple-wrap{display:flex;flex-direction:column;flex:1;padding:28px 22px 34px}
+.ripple-svg{width:100%;max-width:360px;margin:6px auto 4px;display:block}
+.ring-c{fill:none;stroke:rgba(111,168,255,.28);stroke-width:1.4}
+.ring-c.hot{stroke:var(--ripple);stroke-width:2.4;
+  filter:drop-shadow(0 0 8px rgba(111,168,255,.7))}
+.ring-lb{font-family:var(--sans);font-size:12.5px;fill:var(--paper-dim);letter-spacing:.06em}
+.ring-lb.hot{fill:var(--paper);font-weight:700}
+.pulse{fill:var(--signal);animation:pulse 2.4s ease-out infinite;transform-origin:center}
+@keyframes pulse{0%{opacity:.9;r:5}70%{opacity:0;r:26}100%{opacity:0;r:26}}
+.timeline{display:flex;gap:6px;justify-content:center;margin:14px 0 10px;flex-wrap:wrap}
+.t-step{font-size:13.5px;padding:7px 12px;border-radius:999px;cursor:pointer;
+  border:1px solid rgba(59,54,48,.2);color:var(--paper-dim);background:#fff;
+  font-family:var(--sans);transition:.15s;position:relative}
+.t-step:hover{border-color:var(--ripple);color:var(--ripple)}
+.t-step.seen{border-color:rgba(111,168,255,.55);color:var(--ripple)}
+.t-step.seen::after{content:'✓';font-size:11px;margin-left:5px;color:var(--sprout);font-weight:900}
+.t-step.on{background:var(--ripple);border-color:var(--ripple);color:#fff;font-weight:700}
+.t-step.on::after{color:#fff}
+.t-step:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.t-hint{text-align:center;font-size:13px;color:var(--paper-dim);opacity:.8;margin:0 0 12px}
+.ripple-text{background:var(--ink-2);border-radius:16px;padding:20px 19px;min-height:150px;
+  border:1px solid rgba(111,168,255,.15)}
+.ripple-text .rt-when{font-size:12px;letter-spacing:.18em;color:var(--ripple);
+  font-weight:700;margin-bottom:10px}
+.ripple-text .rt-body{font-family:var(--serif);font-size:17.5px;line-height:1.85;color:var(--paper)}
+.rt-nav{display:flex;gap:8px;margin-top:14px}
+.rt-nav button{flex:1;font-family:var(--sans);font-size:14.5px;font-weight:700;cursor:pointer;
+  border-radius:11px;padding:11px;border:1.5px solid rgba(59,54,48,.18);background:#fff;color:var(--paper)}
+.rt-nav button:disabled{opacity:.35;cursor:default}
+.rt-nav button.prev{color:var(--paper-dim)}
+
+/* ── 데이터 공개 ── */
+.bar-row{margin-bottom:16px}
+.bar-row .b-label{display:flex;justify-content:space-between;font-size:15.5px;margin-bottom:6px}
+.bar-row .b-label .pct{font-weight:800;color:var(--paper)}
+.bar{height:14px;background:rgba(59,54,48,.1);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ripple);border-radius:999px;
+  width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.bar-row.me .b-label .pct{color:var(--signal)}
+.bar-row.me .bar i{background:var(--signal)}
+.mine-flag{font-size:11px;color:var(--signal);font-weight:700;margin-left:6px}
+.src{font-size:11.5px;color:var(--paper-dim);opacity:.7;margin-top:6px}
+
+/* ── 헌법 렌즈 ── */
+.law-card{background:#FFFFFF;color:#3B3630;border:1.5px solid #F2E3C6;box-shadow:0 3px 10px rgba(150,110,40,.08);border-radius:18px;
+  padding:22px 20px;margin-bottom:14px;position:relative}
+.law-card .art{font-size:13px;letter-spacing:.2em;font-weight:800;
+  color:#8A6A2F;margin-bottom:10px}
+.law-card .txt{font-family:var(--serif);font-size:18px;line-height:1.8;font-weight:700}
+.law-card .sub{font-size:15px;color:#5A5648;margin-top:10px;line-height:1.7}
+.vs{ text-align:center;font-family:var(--serif);color:var(--signal);
+  font-size:15px;margin:4px 0 14px}
+textarea.think{width:100%;background:var(--ink-2);border:1px solid rgba(111,168,255,.25);
+  border-radius:13px;color:var(--paper);font-family:var(--serif);font-size:15px;
+  line-height:1.7;padding:14px;min-height:92px;resize:vertical}
+textarea.think::placeholder{color:rgba(59,54,48,.35)}
+
+/* ── 거울 ── */
+.mirror-row{background:var(--ink-2);border-radius:16px;padding:18px;margin-bottom:12px;
+  border-left:3px solid var(--ripple)}
+.mirror-row.gap{border-left-color:var(--ember)}
+.mirror-row .said{font-size:14.5px;color:var(--paper-dim);margin-bottom:6px}
+.mirror-row .said b{color:var(--paper)}
+.mirror-row .did{font-family:var(--serif);font-size:17px;line-height:1.7}
+.mirror-row .did em{font-style:normal;color:var(--signal)}
+
+/* ── 나이테 ── */
+.ring-svg{display:block;margin:10px auto}
+.talk-card{background:linear-gradient(135deg,#E1F3E9,#EFFAF3);border:1.5px solid rgba(46,158,116,.35);
+  border-radius:18px;padding:22px 20px;margin-top:16px}
+.talk-card .tc-title{font-size:12px;letter-spacing:.2em;color:var(--sprout);
+  font-weight:800;margin-bottom:10px}
+.talk-card p{color:var(--paper);font-family:var(--serif);font-size:17.5px;line-height:1.8;margin:0}
+
+/* ── 교사용 ── */
+.tstat{background:var(--ink-2);border-radius:14px;padding:16px 18px;margin-bottom:10px;
+  display:flex;justify-content:space-between;font-size:16px}
+.tstat b{color:var(--signal)}
+.tq{background:var(--ink-2);border-left:3px solid var(--sprout);border-radius:12px;
+  padding:14px 16px;margin-bottom:10px;font-family:var(--serif);
+  font-size:16.5px;line-height:1.7}
+
+/* 진행 점 */
+.crumbs{display:flex;gap:5px;justify-content:center;padding:14px 0 0}
+.crumbs i{width:6px;height:6px;border-radius:50%;background:rgba(59,54,48,.18)}
+.crumbs i.on{background:var(--ripple)}
+/* ── 홈 허브 ── */
+.sc-card{display:block;width:100%;text-align:left;background:var(--ink-2);
+  border:1px solid rgba(111,168,255,.15);border-radius:18px;padding:18px;
+  margin-bottom:12px;cursor:pointer;color:var(--paper);font-family:var(--sans);transition:.15s}
+.sc-card:hover{border-color:var(--ripple)}
+.sc-card .sc-no{font-size:12px;letter-spacing:.2em;color:var(--ripple);font-weight:800}
+.sc-card .sc-title{font-family:var(--serif);font-size:21px;font-weight:700;margin:6px 0 4px}
+.sc-card .sc-tag{font-size:14.5px;color:var(--paper-dim);line-height:1.6}
+.sc-card .sc-done{display:inline-block;margin-top:10px;font-size:13.5px;font-weight:700;
+  padding:5px 11px;border-radius:999px;background:rgba(46,158,116,.13);color:var(--sprout)}
+.sc-card.locked{opacity:.9}
+.hub-ring{display:flex;align-items:center;gap:16px;background:var(--ink-2);
+  border-radius:18px;padding:16px 18px;margin-bottom:14px;border:1px solid rgba(59,54,48,.1)}
+.hub-ring .hr-txt{font-size:14.5px;color:var(--paper-dim);line-height:1.7}
+.hub-ring .hr-txt b{color:var(--paper)}
+.law-chip{display:inline-block;font-size:12px;font-weight:700;background:rgba(242,169,59,.13);
+  color:var(--signal);border:1px solid rgba(242,169,59,.35);border-radius:999px;
+  padding:5px 11px;margin:0 6px 6px 0}
+/* ── 피드 시뮬레이션 ── */
+.feed-round{font-size:12px;letter-spacing:.18em;color:var(--ripple);font-weight:700;
+  text-align:center;margin-bottom:12px}
+.thumb{display:block;width:100%;text-align:left;border:none;border-radius:16px;
+  padding:16px;margin-bottom:12px;cursor:pointer;font-family:var(--sans);transition:.15s}
+.thumb:active{transform:scale(.98)}
+.thumb .th-badge{font-size:11px;font-weight:800;letter-spacing:.06em;
+  display:inline-block;padding:3px 9px;border-radius:6px;margin-bottom:8px}
+.thumb .th-title{font-size:17.5px;font-weight:700;line-height:1.5}
+.thumb .th-meta{font-size:12px;margin-top:8px;opacity:.75}
+.thumb.hot{background:#FFE3DB;color:#8A2B1B;border:1px solid rgba(228,87,61,.45)}
+.thumb.hot .th-badge{background:var(--ember);color:#fff}
+.thumb.calm{background:#DFEAFB;color:#1F3B66;border:1px solid rgba(61,123,245,.4)}
+.thumb.calm .th-badge{background:var(--ripple);color:#fff}
+.feed-cols{display:flex;gap:10px;margin:14px 0}
+.feed-col{flex:1;background:var(--ink-2);border-radius:14px;padding:12px;
+  border:1px solid rgba(59,54,48,.12)}
+.feed-col .fc-head{font-size:13.5px;font-weight:800;margin-bottom:10px;text-align:center;
+  color:var(--paper)}
+.feed-col .fc-item{font-size:13px;line-height:1.5;padding:8px 9px;border-radius:9px;
+  margin-bottom:7px;background:rgba(0,0,0,.04);color:var(--paper-dim)}
+.feed-col .fc-item.hot{background:rgba(228,87,61,.13);color:#B23A26}
+/* ── 투표 ── */
+.poll{background:#fff;border-radius:4px 16px 16px 16px;box-shadow:0 1px 3px rgba(20,30,50,.12);
+  width:250px;padding:14px}
+.poll .p-q{font-weight:800;font-size:14.5px;margin-bottom:10px}
+.poll .p-opt{display:block;width:100%;text-align:left;background:#F0F3F8;border:1px solid #D8DEE8;
+  border-radius:10px;padding:10px 12px;font-size:13.5px;margin-bottom:7px;cursor:pointer;font-family:var(--sans)}
+.poll .p-opt:hover{border-color:var(--chat-mine)}
+.poll .p-res{margin-bottom:8px}
+.poll .p-res .pr-l{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}
+.poll .p-res .pr-b{height:9px;background:#EDF0F5;border-radius:99px;overflow:hidden}
+.poll .p-res .pr-b i{display:block;height:100%;background:var(--chat-mine);border-radius:99px}
+.poll .p-res.win .pr-b i{background:var(--ember)}
+/* ── 헌법 강조 카드 ── */
+.law-card.hl{background:#FFF4D8;color:var(--paper);border:1.5px solid rgba(232,137,12,.45)}
+.law-card.hl .art{color:var(--signal)}
+.law-card.hl .txt{color:var(--paper)}
+.law-card.hl .sub{color:var(--paper-dim)}
+/* 파일 첨부 말풍선 */
+.filebub{display:flex;align-items:center;gap:9px;background:#fff;border-radius:4px 16px 16px 16px;
+  padding:11px 13px;box-shadow:0 1px 2px rgba(20,30,50,.07);font-size:13.5px;width:fit-content}
+.filebub .f-ic{width:34px;height:34px;border-radius:9px;background:#EEF1F6;
+  display:flex;align-items:center;justify-content:center;font-size:16px}
+.filebub .f-sub{font-size:11px;color:#8A94A6}
+/* 영상 카드 말풍선 */
+.vidbub{width:240px;background:#fff;border-radius:4px 16px 16px 16px;overflow:hidden;
+  box-shadow:0 1px 3px rgba(20,30,50,.12)}
+.vidbub .v-thumb{background:#20242E;color:#FF6B57;font-weight:800;font-size:14px;
+  padding:26px 14px;text-align:center;line-height:1.5;position:relative}
+.vidbub .v-thumb::after{content:'▶';position:absolute;right:10px;bottom:8px;
+  color:rgba(255,255,255,.85);font-size:18px}
+.vidbub .v-meta{font-size:11px;color:#8A94A6;padding:9px 12px}
+.vidbub .v-cmt{border-top:1px solid #EDF0F5;padding:8px 12px;font-size:11.5px;color:#4A5568;line-height:1.5}
+
+/* ── 보완 스타일 ── */
+.q-open{margin-top:20px}
+.q-open .qo-t{font-family:var(--serif);font-size:17.5px;line-height:1.7;
+  color:var(--signal);margin-bottom:12px}
+.q-open textarea{width:100%;box-sizing:border-box;background:var(--ink-2);
+  border:1px solid rgba(111,168,255,.3);border-radius:13px;color:var(--paper);
+  font-family:var(--serif);font-size:16.5px;line-height:1.7;padding:14px;
+  min-height:130px;resize:vertical;display:block}
+.q-open textarea::placeholder{color:rgba(59,54,48,.35)}
+.sc-card.done{background:linear-gradient(135deg,#E1F3E9,#F2FBF6)!important;
+  border-color:rgba(46,158,116,.55)!important}
+.sc-card.done .sc-no{color:var(--sprout)}
+.sc-card.done .sc-title::after{content:' ✓';color:var(--sprout)}
+.cmp{background:var(--ink-2);border-radius:16px;padding:16px 16px 14px;margin-bottom:12px;
+  border:1px solid rgba(59,54,48,.08)}
+.cmp .c-q{font-size:15.5px;color:var(--paper);font-family:var(--serif);
+  margin-bottom:12px;line-height:1.6}
+.cmp .c-grid{display:grid;grid-template-columns:1fr 22px 1fr;gap:6px;align-items:center}
+.cmp .c-cap{font-size:12px;letter-spacing:.12em;color:var(--paper-dim);
+  font-weight:800;margin-bottom:7px}
+.cmp .c-dots{display:flex;gap:4px;margin-bottom:5px}
+.cmp .c-dots i{width:13px;height:13px;border-radius:50%;background:rgba(59,54,48,.13)}
+.cmp .c-dots i.on{background:var(--ripple)}
+.cmp .c-sub{font-size:13px;color:var(--paper-dim)}
+.cmp .c-arrow{color:var(--paper-dim);font-size:15px;text-align:center}
+.cmp .c-chip{display:inline-block;font-size:14px;font-weight:700;line-height:1.4;
+  padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.035);
+  border:1.5px solid currentColor}
+.cmp .c-tag{margin-top:11px;font-size:13.5px;font-weight:700;padding-top:9px;
+  border-top:1px dashed rgba(59,54,48,.12)}
+.cmp .c-tag.ok{color:var(--sprout)} .cmp .c-tag.gap{color:var(--signal)}
+
+/* ── 헌법 렌즈 배지 ── */
+.chip-shelf{display:flex;flex-wrap:wrap;gap:8px 16px;margin:4px 0 14px}
+.chip-badge{display:flex;flex-direction:column;align-items:center;gap:1px}
+.chip-badge span{font-size:12px;font-weight:800;color:var(--paper-dim);letter-spacing:.02em}
+.chip-badge.new{animation:chipPop .7s cubic-bezier(.2,1.5,.4,1)}
+@keyframes chipPop{from{transform:scale(.2) rotate(-14deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+/* ── 와플 차트(25명 교실) ── */
+.waffle{display:grid;grid-template-columns:repeat(5,34px);gap:8px;justify-content:center;margin:16px auto 8px}
+.waffle i{width:34px;height:34px;border-radius:11px 11px 13px 13px;position:relative;
+  transform:scale(0);animation:seatIn .32s forwards}
+@keyframes seatIn{60%{transform:scale(1.15)}100%{transform:scale(1)}}
+.waffle i::after{content:'◡';position:absolute;inset:0;display:flex;align-items:center;
+  justify-content:center;font-size:13px;color:rgba(16,26,46,.5);font-weight:900}
+.waffle i.me{box-shadow:0 0 0 2.5px #fff,0 0 0 5px var(--signal)}
+.waffle i.me::after{content:'나';font-size:12px;color:#101A2E}
+.legend-row{display:flex;align-items:center;gap:10px;font-size:15px;margin:8px 0;
+  padding:2px 4px}
+.legend-row .sw{width:17px;height:17px;border-radius:6px;flex-shrink:0}
+.legend-row .pc{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums}
+.legend-row.mine{outline:1.5px solid var(--signal);outline-offset:4px;border-radius:7px}
+/* ── 헌법 빈칸 퀴즈 ── */
+.law-card{position:relative}
+.blank{display:inline-block;min-width:60px;border-bottom:2.5px dashed currentColor;
+  text-align:center;font-weight:800}
+.blank.filled{border-bottom-color:transparent;animation:fillPop .5s}
+@keyframes fillPop{from{transform:scale(.5)}60%{transform:scale(1.25)}to{transform:scale(1)}}
+.quiz{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap}
+.quiz .q-hint{width:100%;font-size:13px;opacity:.6}
+.qchip{border:1.5px solid;border-radius:999px;padding:7px 15px;font-weight:800;
+  font-size:15px;background:transparent;cursor:pointer;font-family:var(--sans);transition:.15s}
+.qchip:hover{transform:translateY(-1px)}
+.qchip.no{animation:shake .4s;opacity:.3;pointer-events:none}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.won-mark{position:absolute;top:14px;right:16px;font-size:15px;font-weight:900;
+  animation:fillPop .5s}
+/* ── 생각 조각 ── */
+.think-save{margin-top:10px;width:100%;background:#F2FBF6;border:1.5px dashed rgba(46,158,116,.55);
+  color:var(--sprout);border-radius:12px;padding:12px;font-family:var(--sans);
+  font-weight:800;font-size:15.5px;cursor:pointer}
+.think-save:hover{background:rgba(46,158,116,.1)}
+.think-fb{background:linear-gradient(135deg,#E1F3E9,#F0FAF4);border:1.5px solid rgba(46,158,116,.4);
+  border-radius:14px;padding:14px 16px;margin-top:10px;font-size:15px;line-height:1.75;
+  animation:msgIn .5s ease}
+.think-fb .fb-badge{display:inline-block;font-weight:900;color:var(--sprout);
+  margin-bottom:6px;animation:fillPop .6s}
+.note-quote{background:var(--ink-2);border-left:3px solid var(--sprout);border-radius:12px;
+  padding:13px 15px;margin-bottom:10px}
+.note-quote .nq-s{font-size:11px;letter-spacing:.1em;color:var(--sprout);font-weight:800;margin-bottom:5px}
+.note-quote .nq-t{font-family:var(--serif);font-size:16px;line-height:1.7}
+
+/* ── 홈 카드 4색 ── */
+#cards .sc-card:nth-of-type(1){background:#FFF0DB;border:1.5px solid #F3C689}
+#cards .sc-card:nth-of-type(2){background:#EAF3FF;border:1.5px solid #A6C6F2}
+#cards .sc-card:nth-of-type(3){background:#F7ECFB;border:1.5px solid #D9AEEE}
+#cards .sc-card:nth-of-type(4){background:#FFF8D9;border:1.5px solid #E5CE72}
+
+/* ── 속마음 스냅샷(비공개) ── */
+.inner-badge{align-items:center;gap:6px;font-size:13.5px;font-weight:800;
+  color:#7B4FBF;background:#F3EBFC;border:1.5px solid #DCC8F2;border-radius:999px;
+  padding:6px 13px;margin:0 auto 10px;justify-content:center;display:flex;width:fit-content}
+.opt.inner{background:#FBF8FF;border-color:#DCC8F2}
+.opt.inner:hover{border-color:#9A6FD0}
+
+/* ── 이중 질문(멋진 나/진짜 나) ── */
+.dual-step{font-size:13.5px;font-weight:800;letter-spacing:.06em;text-align:center;
+  color:var(--ripple);margin-bottom:5px}
+.dual-step.real{color:var(--signal)}
+
+/* ── 추정 슬라이더 ── */
+.gauge-num{font-size:44px;font-weight:900;color:var(--signal);text-align:center;
+  font-variant-numeric:tabular-nums;line-height:1.1}
+.gauge-sub{text-align:center;font-size:14.5px;color:var(--paper-dim);margin:2px 0 6px}
+input[type=range].gauge{width:100%;accent-color:var(--signal);height:36px;cursor:pointer}
+
+/* ── 진짜처럼 생긴 채팅 입력바 ── */
+.fakebar{display:flex;gap:8px;align-items:center}
+.fk-emoji{font-size:16px;font-weight:800;background:#FFE9C9;border:1.5px solid #F2C480;
+  border-radius:999px;padding:12px 15px;cursor:pointer;font-family:var(--sans);flex-shrink:0}
+.fk-input{flex:1;background:#fff;border:1.5px solid #D8DEE8;border-radius:999px;
+  padding:13px 17px;font-size:15.5px;color:#8A94A6;text-align:left;cursor:text;font-family:var(--sans)}
+.fk-pass{font-size:13.5px;color:#69748A;background:#EDF0F5;border:none;border-radius:999px;
+  cursor:pointer;font-family:var(--sans);padding:12px 13px;flex-shrink:0;font-weight:700}
+
+/* ── 작은 거울: 시각화 카드 ── */
+.mm-card{background:#fff;border:1.5px solid #E8E2D6;border-radius:16px;
+  padding:18px 17px 15px;margin-bottom:12px;box-shadow:0 3px 10px rgba(140,110,60,.07)}
+.mm-q{font-family:var(--serif);font-size:16.5px;line-height:1.55;margin-bottom:14px}
+.mm-lb{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--paper-dim);margin-bottom:7px}
+.mm-dots{display:flex;align-items:center;gap:7px}
+.mm-dots i{width:26px;height:26px;border-radius:50%;border:2px solid rgba(59,54,48,.25);flex-shrink:0}
+.mm-dots i.on{background:var(--ripple);border-color:var(--ripple)}
+.mm-dots .mm-score{margin-left:6px;font-size:15px;font-weight:800;color:var(--ripple)}
+.mm-scale{display:flex;justify-content:space-between;font-size:12.5px;color:var(--paper-dim);
+  margin-top:5px;max-width:158px}
+.mm-arrow{text-align:center;color:var(--paper-dim);font-size:17px;margin:9px 0}
+.mm-chip{display:inline-block;font-size:16px;font-weight:800;line-height:1.4;
+  padding:9px 15px;border-radius:999px;border:2px solid currentColor;background:#fff}
+.mm-tag{margin-top:13px;padding-top:11px;border-top:1.5px dashed #E8E2D6;
+  font-size:15px;font-weight:800;display:flex;align-items:center;gap:7px}
+.mm-tag.ok{color:var(--sprout)} .mm-tag.gap{color:var(--signal)}
+.mm-duo{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+.mm-cell{border-radius:13px;padding:13px 11px;text-align:center;border:1.5px solid}
+.mm-cell .cap{font-size:12.5px;font-weight:800;letter-spacing:.06em;margin-bottom:7px;opacity:.75}
+.mm-cell .big{font-size:26px;line-height:1.2;margin-bottom:5px}
+.mm-cell .val{font-size:15px;font-weight:700;line-height:1.45;word-break:keep-all}
+.mm-link{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:11px;
+  font-size:15px;font-weight:800}
+.mm-link.same{color:var(--sprout)} .mm-link.diff{color:var(--signal)}
+.mm-steps{display:flex;align-items:flex-start;margin-top:8px}
+.mm-step{flex:1;text-align:center;position:relative}
+.mm-step .nd{width:22px;height:22px;border-radius:50%;margin:0 auto 7px;
+  border:2.5px solid var(--sprout);background:var(--sprout);position:relative;z-index:2}
+.mm-step.stop .nd{background:#fff;border-color:var(--signal)}
+.mm-step .tx{font-size:13.5px;line-height:1.45;color:var(--paper);font-weight:700;word-break:keep-all}
+.mm-step.stop .tx{color:var(--signal)}
+.mm-step::before{content:'';position:absolute;top:10px;left:-50%;width:100%;height:2.5px;background:var(--sprout)}
+.mm-step:first-child::before{display:none}
+.mm-step.stop::before{background:repeating-linear-gradient(90deg,var(--signal) 0 6px,transparent 6px 12px)}
+
+/* ── 내 말로 직접 쓰기 ── */
+.free-toggle{border-style:dashed !important}
+.free-box textarea{width:100%;box-sizing:border-box;font-family:var(--sans);font-size:17px;
+  padding:12px 14px;border:1.5px solid rgba(59,54,48,.28);border-radius:12px;background:#fff;
+  resize:none;margin-bottom:8px;line-height:1.5}
+.free-box textarea:focus{outline:2.5px solid var(--ripple);border-color:transparent}
+
+/* ── 한 걸음 더: 시각 행 ── */
+.deep-row{border:1.5px solid #EDE5D8;border-radius:14px;padding:12px 12px 11px;margin-bottom:10px;background:#fff}
+.deep-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px;flex-wrap:wrap}
+.deep-sc{font-size:14px;font-weight:800;color:var(--paper-dim)}
+.deep-badge{font-size:13.5px;font-weight:800;padding:5px 12px;border-radius:999px;white-space:nowrap}
+.deep-badge.over{background:#E7F3ED;color:#2E9E74}
+.deep-badge.gap{background:#FDEFDA;color:#C97207}
+.deep-badge.same{background:#EFF3F7;color:#5A6B7E}
+.deep-duo{display:flex;align-items:stretch;gap:7px}
+.deep-cell{flex:1;background:#FBF8F2;border-radius:10px;padding:9px 11px;font-size:14.5px;line-height:1.5;min-width:0}
+.deep-cell .dc-cap{font-size:12.5px;font-weight:800;color:var(--paper-dim);display:block;margin-bottom:3px}
+.deep-cell b{font-size:15px;word-break:keep-all}
+.deep-arr{align-self:center;color:var(--paper-dim);font-weight:900;flex-shrink:0}
+
+/* ── 버티기 순간 ── */
+.choice-panel.hold::after{content:'';position:absolute;left:9px;right:9px;top:36px;bottom:9px;
+  border:2.5px solid var(--signal);border-radius:20px;pointer-events:none;
+  opacity:0;animation:holdFlash 1.05s ease 3}
+.choice-panel.hold .cp-title{color:var(--signal);font-weight:700}
+@keyframes holdFlash{0%,100%{opacity:0}45%{opacity:1;box-shadow:0 0 20px rgba(232,137,12,.45),inset 0 0 14px rgba(232,137,12,.14)}}
+
+/* ── 마지막 거울: 간격 지도 ── */
+.gapmap{background:#fff;border:1.5px solid #E8E2D6;border-radius:16px;
+  padding:16px 12px 13px;margin-bottom:14px;box-shadow:0 3px 10px rgba(140,110,60,.07)}
+.gapmap svg{display:block;width:100%;max-width:330px;margin:0 auto}
+.gapmap .gm-legend{display:flex;justify-content:center;gap:16px;margin-top:8px;
+  font-size:13.5px;font-weight:700;color:var(--paper-dim);flex-wrap:wrap}
+.gapmap .gm-legend b{display:inline-block;width:13px;height:13px;border-radius:50%;
+  margin-right:5px;vertical-align:-1.5px}
+.gapmap .gm-sum{text-align:center;font-size:15px;margin-top:9px;line-height:1.65}
+
+/* ══════════ v2 업그레이드 스타일 ══════════ */
+/* 뒤로 가기 */
+.backbtn{background:#fff;border:1.5px solid rgba(59,54,48,.22);border-radius:999px;
+  padding:8px 16px;font-size:14.5px;font-weight:800;color:var(--paper-dim);cursor:pointer;
+  font-family:var(--sans);align-self:flex-start;margin:0 0 12px;flex:none}
+.backbtn:hover{border-color:var(--ripple);color:var(--ripple)}
+.linky{background:none;border:none;color:var(--ripple);font-family:var(--sans);
+  font-size:15px;font-weight:700;cursor:pointer;text-decoration:underline;padding:4px 2px}
+.intro-sub{font-size:14px;color:var(--paper-dim);letter-spacing:.05em;margin:4px 0 0;font-weight:600}
+/* 낱말 톡 사전 */
+.word{border-bottom:2px dotted var(--ripple);background:rgba(61,123,245,.08);
+  cursor:pointer;border-radius:4px;padding:0 2px;transition:.15s}
+.word:hover{background:rgba(61,123,245,.16)}
+.dicpop{position:fixed;z-index:300;max-width:290px;background:#fff;border:1.5px solid rgba(61,123,245,.4);
+  border-radius:16px;box-shadow:0 10px 30px rgba(60,80,140,.2);padding:13px 15px;
+  font-family:var(--sans);animation:msgIn .25s ease}
+.dicpop .dp-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.dicpop .dp-w{font-weight:900;font-size:16px;color:var(--ripple)}
+.dicpop .dp-m{font-size:14.5px;line-height:1.6;color:var(--paper)}
+.dicpop .dp-e{font-size:13.5px;line-height:1.6;color:var(--paper-dim);margin-top:6px;
+  border-top:1px dashed rgba(59,54,48,.15);padding-top:6px}
+.wordcount{font-size:13px;color:var(--ripple);font-weight:800;margin:0 0 10px}
+/* 물결이 코치마크 */
+.coach{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:250;
+  display:flex;align-items:center;gap:9px;background:#fff;border:1.5px solid rgba(61,123,245,.4);
+  border-radius:999px;padding:8px 18px 8px 9px;box-shadow:0 8px 26px rgba(60,80,140,.22);
+  font-size:14.5px;font-weight:700;color:var(--paper);font-family:var(--sans);
+  animation:msgIn .4s ease;max-width:88vw}
+.coach.bye{opacity:0;transition:opacity .6s}
+/* 온보딩 */
+.onb{position:fixed;inset:0;z-index:400;background:rgba(43,38,32,.5);display:flex;
+  align-items:center;justify-content:center;padding:22px}
+.onb-card{background:var(--ink);border-radius:24px;max-width:370px;width:100%;
+  padding:30px 24px 22px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.onb-card h3{font-family:var(--serif);font-size:23px;margin:12px 0 10px}
+.onb-card p{font-size:15.5px;line-height:1.8;color:var(--paper-dim);margin-bottom:8px}
+.onb-card p b{color:var(--paper)}
+.onb-dots{display:flex;gap:6px;justify-content:center;margin:14px 0 4px}
+.onb-dots i{width:8px;height:8px;border-radius:50%;background:rgba(59,54,48,.2)}
+.onb-dots i.on{background:var(--ripple)}
+.onb-flow{display:flex;justify-content:center;gap:5px;align-items:center;
+  font-size:12.5px;font-weight:800;color:var(--paper-dim);margin:12px 0;flex-wrap:wrap}
+.onb-flow span{background:#fff;border:1px solid rgba(59,54,48,.15);border-radius:999px;padding:6px 10px}
+.onb-skip{background:none;border:none;color:var(--paper-dim);font-size:14px;
+  text-decoration:underline;cursor:pointer;font-family:var(--sans);margin-top:10px}
+/* 유형 카드 */
+.type-card{border-radius:22px;padding:24px 20px;margin-bottom:14px;text-align:center;
+  border:2px solid;position:relative;background:#fff}
+.type-card .tc-wol{display:flex;justify-content:center;gap:8px;align-items:center;
+  font-size:14px;font-weight:800;color:var(--paper-dim);margin-bottom:8px}
+.type-card .tc-emoji{font-size:56px;line-height:1.2}
+.type-card .tc-name{font-family:var(--serif);font-size:29px;font-weight:700;margin:4px 0 2px}
+.type-card .tc-sub{font-size:15.5px;font-weight:700;opacity:.85;margin-bottom:12px}
+.type-card .tc-fixed{font-size:13.5px;color:var(--paper-dim);margin-top:14px;line-height:1.65}
+.type-duo{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px;text-align:left}
+.type-duo .td-cell{background:rgba(0,0,0,.03);border-radius:13px;padding:12px 13px}
+.type-duo .td-cap{font-size:12.5px;font-weight:900;margin-bottom:5px}
+.type-duo .td-tx{font-size:14px;line-height:1.6;color:var(--paper)}
+.type-why{margin-top:12px;text-align:left;font-size:14px}
+.type-why summary{cursor:pointer;font-weight:800;color:var(--paper-dim)}
+.type-why .tw-row{display:flex;justify-content:space-between;gap:8px;padding:7px 4px;
+  border-bottom:1px dashed rgba(59,54,48,.12);font-size:14px}
+.subbadges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.subbadges span{font-size:13px;font-weight:800;background:#FFF4D8;border:1px solid rgba(232,137,12,.4);
+  color:#9A6206;border-radius:999px;padding:6px 12px}
+/* 실천 미션 */
+.mission-card{background:linear-gradient(135deg,#E1F3E9,#F2FBF6);border:1.5px solid rgba(46,158,116,.45);
+  border-radius:18px;padding:18px;margin-bottom:14px}
+.mission-card .mc-head{display:flex;align-items:center;gap:8px;font-size:13px;
+  letter-spacing:.14em;font-weight:900;color:var(--sprout);margin-bottom:9px}
+.mission-card .mc-tx{font-family:var(--serif);font-size:17.5px;line-height:1.75}
+.mission-card .mc-note{font-size:13px;color:var(--paper-dim);margin-top:9px}
+.mission-ask{background:#fff;border:1.5px dashed rgba(46,158,116,.5);border-radius:18px;
+  padding:16px;margin-bottom:14px}
+.mission-ask .ma-q{display:flex;gap:9px;align-items:center;font-size:15px;font-weight:700;margin-bottom:11px;line-height:1.5}
+.mission-ask .ma-btns{display:flex;gap:8px}
+.mission-ask .ma-btns button{flex:1;font-family:var(--sans);font-weight:800;font-size:15px;
+  border-radius:12px;border:1.5px solid rgba(46,158,116,.45);background:#F2FBF6;color:var(--sprout);
+  padding:11px;cursor:pointer}
+/* 결과 카드 오버레이 */
+.shareov{position:fixed;inset:0;z-index:500;background:rgba(30,26,20,.72);display:flex;
+  flex-direction:column;align-items:center;justify-content:center;padding:18px;gap:12px}
+.shareov img{max-width:min(86vw,420px);max-height:60vh;border-radius:18px;
+  box-shadow:0 16px 50px rgba(0,0,0,.45)}
+.shareov .so-btns{display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
+.shareov .so-btns button{font-family:var(--sans);font-weight:800;font-size:15px;border:none;
+  border-radius:12px;padding:12px 18px;cursor:pointer;background:#fff;color:var(--paper)}
+.shareov .so-hint{color:#EADFCE;font-size:13.5px;text-align:center;line-height:1.6}
+/* 교사용 막대(v1 정의 누락 보완) */
+.bar-label{display:flex;justify-content:space-between;font-size:15px;margin-bottom:5px}
+.bar-track{height:13px;background:rgba(59,54,48,.1);border-radius:999px;overflow:hidden;margin-bottom:12px}
+.bar-fill{display:block;height:100%;border-radius:999px}
+/* 홈: 완료 카드 액션 / 코드 접기 */
+.sc-actions{display:flex;gap:8px;margin-top:11px}
+.sc-actions button{flex:1;font-family:var(--sans);font-size:14px;font-weight:800;cursor:pointer;
+  border-radius:11px;padding:10px 8px;border:1.5px solid rgba(59,54,48,.2);background:#fff;color:var(--paper)}
+.sc-actions button:hover{border-color:var(--ripple)}
+.code-details{margin-bottom:14px}
+.code-details summary{cursor:pointer;font-size:14px;color:var(--paper-dim);font-weight:700}
+.code-details .cd-body{display:flex;align-items:center;gap:10px;background:#fff;
+  border:1.5px dashed rgba(59,54,48,.3);border-radius:12px;padding:10px 14px;margin-top:8px;
+  font-size:14.5px;line-height:1.55}
+/* 가이드 화면 */
+.guide-card{background:#fff;border:1.5px solid rgba(59,54,48,.12);border-radius:16px;
+  padding:18px;margin-bottom:12px;font-size:15.5px;line-height:1.8;color:var(--paper)}
+.guide-card b{color:var(--paper)}
+.guide-warn{background:#FFF4D8;border:1.5px solid rgba(232,137,12,.45);border-radius:16px;
+  padding:18px;margin-bottom:12px;font-size:15.5px;line-height:1.8}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ══════════════════════════════════════════════
+   너라면 어떻게 할래? — v2 통합판 (시나리오 1~4)
+   부제: 피부에 닿는 민주주의 · 나의 선택이 만드는 물결
+══════════════════════════════════════════════ */
+const $app = document.getElementById('app');
+const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
+const S = {
+  check:[null,null,null,null,null],
+  extra:{},                 // 시나리오별 속마음·추정·이중선택·물러섬 {1:{inner,ideal,guess,folded,said}, ...}
+  code:null,                // 이어하기 익명 코드 (예: 하늘123)
+  cur:null,                 // 진행 중 시나리오 번호
+  c1:null, c2:null,         // 현재 시나리오의 선택
+  done:{},                  // {1:{c1,c2,stance}, ...}
+  notes:{},                 // 시나리오별로 적은 생각 {1:{q,t}, ...} — 이 기기에만 저장
+  trail:{},                 // 시나리오별 선택 기록(이어하기·다시보기용) {1:[{t,k,...}], ...}
+  ui:{ rippleSeen:{}, lawSolved:{}, drafts:{}, feedHot:0 },
+  rec:{},                   // 시나리오별 서버 기록 여부
+  speed:1
+};
+
+/* ── 내비게이션 스택 (R1) ── */
+let NAV = [];
+let POPGUARD = false;
+function nav(fn){
+  const a = Array.prototype.slice.call(arguments,1);
+  NAV.push({fn:fn, a:a});
+  try{ history.pushState({d:NAV.length}, ''); }catch(e){}
+  fn.apply(null,a);
+}
+function navHome(){ NAV=[{fn:scrHome,a:[]}]; scrHome(); }
+function goBack(){
+  if(NAV.length<2) return;
+  try{ POPGUARD=true; history.back(); }catch(e){}
+  NAV.pop();
+  const t=NAV[NAV.length-1];
+  t.fn.apply(null,t.a);
+}
+window.addEventListener('popstate', ()=>{
+  if(POPGUARD){ POPGUARD=false; return; }
+  if(NAV.length>1){
+    NAV.pop();
+    const t=NAV[NAV.length-1];
+    t.fn.apply(null,t.a);
+  }
+});
+
+/* ── 서버(Apps Script) 연동 ── */
+function record(n){
+  if(S.rec[n]) return; S.rec[n]=true;
+  if(IS_GAS){ try{
+    const d=S.done[n];
+    google.script.run.recordEvent(JSON.stringify({sc:n,c1:d.c1,c2:d.c2,stance:d.stance}));
+  }catch(e){} }
+}
+function fetchStats(cb){
+  if(IS_GAS){ try{
+    google.script.run.withSuccessHandler(s=>{try{cb(JSON.parse(s))}catch(e){cb(null)}})
+      .withFailureHandler(()=>cb(null)).getStats();
+  }catch(e){cb(null)} } else cb(null);
+}
+
+/* ══════════ 이어하기 — 자동 저장·자동 복원 (R2) ══════════
+ * 프라이버시 원칙: 속마음(inner)·추정(guess)·생각 조각(notes)은
+ * 서버로 보내지 않고 이 기기(localStorage)에만 저장한다. */
+const CODE_WORDS = ['하늘','바다','새싹','달빛','노을','구름','파도','별빛','들꽃','숲길',
+  '나무','바람','이슬','노래','웃음','마음','햇살','단풍','눈꽃','봄비',
+  '아침','저녁','강물','초록','보라','진주','연두','산새','들판','고래'];
+function genCode(){ return CODE_WORDS[Math.floor(Math.random()*CODE_WORDS.length)] + (100+Math.floor(Math.random()*900)); }
+function ensureCode(){
+  if(S.code) return;
+  try{ const c = localStorage.getItem('pinu_code'); if(c && /^[가-힣]{2}\d{3}$/.test(c)){ S.code = c; return; } }catch(e){}
+  S.code = genCode();
+  try{ localStorage.setItem('pinu_code', S.code); }catch(e){}
+  // 코드 충돌 방지: 이미 서버에서 쓰는 코드면 새로 발급 (비동기)
+  if(IS_GAS){ try{
+    google.script.run.withSuccessHandler(j=>{
+      if(j){ S.code = genCode(); try{ localStorage.setItem('pinu_code', S.code); }catch(e){} saveProgress(); }
+    }).loadState(S.code);
+  }catch(e){} }
+}
+function sanitizeExtra_(){ // 서버 저장용 — 비공개 항목 제거
+  const o={};
+  Object.keys(S.extra).forEach(k=>{
+    const e=S.extra[k]||{}, c={};
+    if(e.folded) c.folded=true;
+    if(e.said) c.said=e.said;
+    if(e.ideal) c.ideal=e.ideal;
+    o[k]=c;
+  });
+  return o;
+}
+function sanitizeTrail_(){ // 서버 저장용 — 자유 입력 원문은 유지(대화에 노출된 내용), 속마음(i)·추정(g)은 제거
+  const o={};
+  Object.keys(S.trail).forEach(k=>{
+    o[k]=(S.trail[k]||[]).filter(r=>r.t!=='i'&&r.t!=='g');
+  });
+  return o;
+}
+function packServer(){ return JSON.stringify({ v:2, check:S.check, done:S.done, extra:sanitizeExtra_(), trail:sanitizeTrail_() }); }
+function packLocal(){ return JSON.stringify({ v:2, check:S.check, done:S.done, extra:S.extra, notes:S.notes, trail:S.trail, ui:S.ui }); }
+function applyState(o){
+  if(!o || (o.v!==1 && o.v!==2)) return false;
+  S.check = o.check || S.check;
+  S.done  = o.done  || {};
+  S.extra = o.extra || {};
+  S.notes = o.notes || {};
+  S.trail = o.trail || {};
+  S.ui = Object.assign({rippleSeen:{},lawSolved:{},drafts:{},feedHot:0}, o.ui||{});
+  Object.keys(S.done).forEach(k=>{ S.rec[k]=true; }); // 재접속 시 집계 중복 방지
+  return true;
+}
+function saveProgress(){
+  if(!S.code) return;
+  try{ localStorage.setItem('pinu_state_'+S.code, packLocal()); }catch(e){}
+  if(IS_GAS){ try{ google.script.run.saveState(S.code, packServer()); }catch(e){} }
+}
+function loadProgress(code, cb){
+  const fin = srv=>{
+    let loc=null;
+    try{ const j=localStorage.getItem('pinu_state_'+code); if(j) loc=JSON.parse(j); }catch(e){}
+    if(srv && loc){
+      // 병합: 서버(공개 항목) + 로컬(비공개 항목·화면 상태)이 함께 복원되게
+      srv.notes = loc.notes || srv.notes;
+      srv.ui = loc.ui || srv.ui;
+      if(!srv.trail || !Object.keys(srv.trail).length) srv.trail = loc.trail;
+      if(loc.extra){
+        srv.extra = srv.extra || {};
+        Object.keys(loc.extra).forEach(k=>{
+          srv.extra[k] = Object.assign({}, srv.extra[k]||{}, loc.extra[k]);
+        });
+      }
+      cb(srv);
+    } else cb(srv || loc);
+  };
+  if(IS_GAS){
+    try{
+      google.script.run.withSuccessHandler(j=>{ let o=null; try{ o=j?JSON.parse(j):null; }catch(e){} fin(o); })
+        .withFailureHandler(()=>fin(null)).loadState(code);
+    }catch(e){ fin(null); }
+  } else fin(null);
+}
+
+/* ── 공통 유틸 ── */
+function esc(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function el(html){ const d=document.createElement('div'); d.innerHTML=html.trim(); return d.firstElementChild; }
+function show(node){
+  $app.innerHTML=''; $app.appendChild(node); node.classList.add('on');
+  window.scrollTo(0,0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
+  $app.scrollTop = 0;
+  node.scrollTop = 0;
+  requestAnimationFrame(()=>{ window.scrollTo(0,0); node.scrollTop = 0; });
+  // 뒤로 가기 버튼 (R1) — 채팅 화면은 자체 상단 바에 배치
+  if(NAV.length>1 && !node.classList.contains('chatworld') && !node.classList.contains('noback')){
+    const host = node.querySelector('.ripple-wrap') || node;
+    const b = el('<button class="backbtn" aria-label="뒤로 가기">← 뒤로</button>');
+    b.onclick = goBack;
+    host.insertBefore(b, host.firstChild);
+  }
+  // 사전 팝오버 닫기
+  const dp=document.getElementById('dicpop'); if(dp) dp.remove();
+}
+function doneCount(){ return Object.keys(S.done).length; }
+
+/* ══════════ 물결이 — 안내 캐릭터 (R7) ══════════ */
+function wolSVG(size, expr){
+  expr = expr || 'base';
+  const eyes = expr==='joy'
+    ? '<path d="M 15 29.5 q 3 -3.4 6 0" stroke="#4A3318" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M 27 29.5 q 3 -3.4 6 0" stroke="#4A3318" stroke-width="2.2" fill="none" stroke-linecap="round"/>'
+    : '<circle cx="18" cy="30" r="2" fill="#4A3318"/><circle cx="30" cy="30" r="2" fill="#4A3318"/>';
+  const mouth = expr==='think'
+    ? '<circle cx="24" cy="37.5" r="2.4" fill="#4A3318"/>'
+    : '<path d="M 19 35.5 Q 24 '+(expr==='joy'?'41.5':'39')+' 29 35.5" stroke="#4A3318" stroke-width="2" fill="none" stroke-linecap="round"/>';
+  const spark = expr==='joy'
+    ? '<path d="M 41 14 l 1 2.2 2.2 1 -2.2 1 -1 2.2 -1 -2.2 -2.2 -1 2.2 -1 Z" fill="#F2A93B"/>'
+    : '';
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 48 54" aria-label="물결이" style="flex:none">'
+    + '<circle cx="24" cy="34" r="14" fill="#F2A93B"/>'
+    + eyes + mouth
+    + '<ellipse cx="14.5" cy="35" rx="2.6" ry="1.7" fill="#E4573D" opacity=".45"/>'
+    + '<ellipse cx="33.5" cy="35" rx="2.6" ry="1.7" fill="#E4573D" opacity=".45"/>'
+    + '<path d="M 24 20 Q 23 15.5 24 12" stroke="#7FB59B" stroke-width="2" fill="none" stroke-linecap="round"/>'
+    + '<path d="M 24 13 Q 16.5 11 17 5 Q 22.8 7.5 24 13 Z" fill="#7FB59B"/>'
+    + '<path d="M 24 13 Q 31.5 11 31 5 Q 25.2 7.5 24 13 Z" fill="#A9CDBB"/>'
+    + spark + '</svg>';
+}
+
+/* ── 코치마크 (R5) ── */
+function coach(id, txt){
+  try{
+    if(localStorage.getItem('pinu_cm_'+id)) return;
+    localStorage.setItem('pinu_cm_'+id,'1');
+  }catch(e){ return; }
+  const c = el('<div class="coach">'+wolSVG(34)+'<span>'+txt+'</span></div>');
+  document.body.appendChild(c);
+  setTimeout(()=>{ c.classList.add('bye'); setTimeout(()=>c.remove(), 700); }, 5600);
+}
+
+/* ══════════ 낱말 톡 사전 (R6) ══════════ */
+const DICT = {
+  '존엄': { m:'어떤 사람이든 그 자체로 소중하다는 뜻이에요.', e:'누가 어디 살든, 공부를 잘하든 못하든, 함부로 대해도 되는 사람은 없어요.' },
+  '주권': { m:'나라의 주인으로서 결정할 수 있는 힘이에요.', e:'우리 반 일을 우리 반이 정하는 것처럼, 나라의 일은 국민이 정해요.' },
+  '공화국': { m:'나라가 어느 한 사람의 것이 아니라 모두의 것이라는 뜻이에요.', e:'왕이 다스리는 나라가 아니라, 국민이 함께 주인인 나라예요.' },
+  '균등': { m:'조건 때문에 밀려나는 사람 없이, 고르게 기회를 준다는 뜻이에요.', e:'집에 컴퓨터가 없어도 배울 기회는 똑같이 있어야 해요.' },
+  '기본권': { m:'사람이라면 누구나 처음부터 가지고 있는 권리예요.', e:'투표로도 빼앗을 수 없어요. 예를 들면 안전하게 살 권리 같은 것요.' },
+  '침해': { m:'남의 권리나 소중한 것을 함부로 건드려 다치게 하는 거예요.', e:'허락 없이 남의 비밀을 퍼뜨리는 것도 침해예요.' },
+  '명예': { m:'그 사람에 대한 좋은 평판, 사람들이 그 사람을 보는 눈이에요.', e:'가짜 소문이 퍼지면 그 사람의 명예가 다쳐요.' },
+  '사생활': { m:'남에게 보여 주지 않아도 되는, 나만의 생활과 이야기예요.', e:'우리 집 사정을 어디까지 말할지는 내가 정할 수 있어요.' },
+  '다수결': { m:'더 많은 사람이 고른 쪽으로 정하는 방법이에요.', e:'편리한 도구지만, 정하기 전에 소수의 사정을 살피는 게 먼저예요.' },
+  '소수': { m:'여럿 가운데 수가 적은 쪽 사람들이에요.', e:'투표에서 진 쪽, 몸이 불편한 친구처럼 수가 적다고 틀린 건 아니에요.' },
+  '알 권리': { m:'정확한 정보를 알 수 있어야 한다는 권리예요.', e:'가짜 뉴스가 많아지면 이 권리가 망가져요.' },
+  '언론·출판': { m:'말과 글, 영상으로 생각을 세상에 내놓는 일이에요.', e:'유튜브에 영상을 올리는 것도 여기에 들어가요.' },
+  '집회·결사': { m:'여럿이 모여 뜻을 밝히거나 모임을 만드는 일이에요.', e:'같은 생각을 가진 사람들이 동아리를 만드는 것도 포함돼요.' },
+  '타협': { m:'한쪽이 지는 게 아니라, 둘 다 담기는 더 큰 답을 찾는 거예요.', e:'이어달리기도 하고 단체줄넘기도 하기로 한 것처럼요.' },
+  '익명': { m:'이름을 밝히지 않는 거예요.', e:'이 앱은 누가 골랐는지 몰라요. 몇 명이 골랐는지만 세요.' }
+};
+function dicify(h){
+  Object.keys(DICT).forEach(w=>{
+    if(h.indexOf('data-w="'+w+'"') > -1) return;      // 이미 처리됨
+    const re = new RegExp('(^|>)([^<]*?)'+w);
+    if(re.test(h)) h = h.replace(re, (m,a,b)=> a+b+'<span class="word" data-w="'+w+'" tabindex="0" role="button">'+w+'</span>');
+  });
+  return h;
+}
+function dicifyIn(root, sel){
+  root.querySelectorAll(sel).forEach(e=>{
+    if(e.querySelector('button,input,textarea,a,select')) return;
+    e.innerHTML = dicify(e.innerHTML);
+  });
+}
+function dictSeen(w){
+  try{
+    const a = JSON.parse(localStorage.getItem('pinu_dict')||'[]');
+    if(a.indexOf(w)<0){ a.push(w); localStorage.setItem('pinu_dict', JSON.stringify(a)); }
+  }catch(e){}
+}
+function dictCount(){ try{ return (JSON.parse(localStorage.getItem('pinu_dict')||'[]')).length; }catch(e){ return 0; } }
+function openDicPop(wEl){
+  const old=document.getElementById('dicpop'); if(old) old.remove();
+  const w = wEl.dataset.w, d = DICT[w];
+  if(!d) return;
+  dictSeen(w);
+  const p = el('<div class="dicpop" id="dicpop"><div class="dp-head">'+wolSVG(30)
+    +'<span class="dp-w">'+w+'</span></div><div class="dp-m">'+d.m+'</div><div class="dp-e">'+d.e+'</div></div>');
+  document.body.appendChild(p);
+  const r = wEl.getBoundingClientRect();
+  let left = Math.min(Math.max(10, r.left), window.innerWidth - p.offsetWidth - 10);
+  let top = r.top - p.offsetHeight - 8;
+  if(top < 8) top = r.bottom + 8;
+  p.style.left = left+'px'; p.style.top = top+'px';
+}
+document.addEventListener('click', e=>{
+  const w = e.target.closest && e.target.closest('.word');
+  if(w){ e.stopPropagation(); openDicPop(w); return; }
+  const p = document.getElementById('dicpop');
+  if(p && !e.target.closest('.dicpop')) p.remove();
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && e.target.classList && e.target.classList.contains('word')){ openDicPop(e.target); }
+  if(e.key==='Escape'){ const p=document.getElementById('dicpop'); if(p) p.remove(); }
+});
+
+/* ══════════ 온보딩 (R5) ══════════ */
+function showOnb(setFlag){
+  const CARDS = [
+    { w:'joy', h:'안녕! 나는 물결이예요',
+      b:'<p>이 앱은 <b>이야기 속에서 네가 직접 고르는 앱</b>이에요.<br>단톡방, 조별과제, 영상 피드, 학급회의 —<br>진짜 우리 일상 같은 이야기 네 개가 준비돼 있어요.</p>' },
+    { w:'base', h:'약속 세 가지',
+      b:'<p>① <b>정답도 점수도 없어요.</b> 채점하지 않아요.<br>② <b>이름을 묻지 않아요.</b> 누가 골랐는지 아무도 몰라요.<br>③ 그러니까 <b>솔직하게</b> — 평소의 나로 골라 주세요.</p>' },
+    { w:'joy', h:'이렇게 걸어요',
+      b:'<p>이야기 하나에 10분쯤 걸려요.</p><div class="onb-flow"><span>선택하기</span>→<span>물결 보기</span>→<span>헌법 렌즈</span>→<span>거울 보기</span></div><p>네 개를 다 걸으면 <b>나의 물결 유형</b>과<br><b>시민 나이테</b>를 받아요.</p>' }
+  ];
+  let i = 0;
+  const ov = el('<div class="onb"><div class="onb-card" id="onbC"></div></div>');
+  document.body.appendChild(ov);
+  function fin(){ ov.remove(); if(setFlag){ try{ localStorage.setItem('pinu_onb','1'); }catch(e){} } }
+  function render(){
+    const c = CARDS[i];
+    ov.querySelector('#onbC').innerHTML = wolSVG(74, c.w) + '<h3>'+c.h+'</h3>' + c.b
+      + '<div class="onb-dots">'+CARDS.map((x,k)=>'<i class="'+(k===i?'on':'')+'"></i>').join('')+'</div>'
+      + '<button class="btn" id="onbN">'+(i<CARDS.length-1?'다음':'좋아, 시작할게!')+'</button>'
+      + '<div><button class="onb-skip" id="onbS">건너뛰기</button></div>';
+    ov.querySelector('#onbN').onclick = ()=>{ if(i<CARDS.length-1){ i++; render(); } else fin(); };
+    ov.querySelector('#onbS').onclick = fin;
+  }
+  render();
+}
+
+/* ══════════ 시나리오 메타 ══════════ */
+const SC_META = {
+  1:{ no:'첫 번째 물결', title:'웃긴데, 왜?', tag:'단톡방에 밈 하나가 올라옵니다. 다들 웃습니다. 재미로 웃는 것과 누군가를 다치게 하는 것 — 그 사이 어딘가에 당신의 손가락이 있습니다.' },
+  2:{ no:'두 번째 물결', title:'걔는 노력을 안 했잖아', tag:'조별과제에 세 줄짜리 자료를 낸 친구. “무임승차”라는 말이 단톡방에 떠오릅니다. 그런데 결과가 부족한 것과 노력이 부족한 것은, 같은 말일까요?' },
+  3:{ no:'세 번째 물결', title:'알고리즘이 골라준 세상', tag:'내가 고른 줄 알았던 영상들이 사실은 나를 고르고 있었다면? 그리고 그 피드에 ‘충격 폭로’ 영상이 떠오른다면 — 당신은 공유 버튼 앞에 서 있습니다.' },
+  4:{ no:'네 번째 물결', title:'다수결이면 끝?', tag:'체육대회 종목 투표에서 이어달리기가 압도적 1위. 그런데 다리를 다친 도윤이는 뛸 수 없습니다. 다수결은 민주주의의 전부일까요, 도구 중 하나일까요?' }
+};
+const STANCE_META = {
+  1:{ join:{c:'#D98E5F',n:'같이 웃은 길'}, silence:{c:'#8A94A6',n:'아무 말도 하지 않은 길'},
+      half:{c:'#C9B45A',n:'말을 꺼냈다가 멈춘 길'}, repair:{c:'#7FB59B',n:'늦었지만 행동한 길'},
+      voice:{c:'#6FA8FF',n:'끝까지 말한 길'} },
+  2:{ blame:{c:'#D98E5F',n:'같이 몰아세운 길'}, silent:{c:'#8A94A6',n:'아무 말도 하지 않은 길'},
+      late:{c:'#C9B45A',n:'뒤늦게 물어본 길'}, expose:{c:'#C98AB8',n:'허락 없이 사정을 알린 길'},
+      respect:{c:'#6FA8FF',n:'먼저 묻고 존중한 길'} },
+  3:{ spread:{c:'#D98E5F',n:'확인 없이 퍼뜨린 길'}, quiet:{c:'#8A94A6',n:'조용히 지우기만 한 길'},
+      verify:{c:'#C9B45A',n:'확인했지만 알리지 않은 길'}, correct:{c:'#6FA8FF',n:'확인하고 바로잡은 길'} },
+  4:{ majority:{c:'#D98E5F',n:'다수결로 끝낸 길'}, late:{c:'#C9B45A',n:'늦었지만 다시 꺼낸 길'},
+      propose:{c:'#C98AB8',n:'물어보지 않고 대신 정한 길'}, partner:{c:'#6FA8FF',n:'당사자에게 직접 물어본 길'} }
+};
+
+/* ══════════ 0. 입장 (R0 리브랜딩 + R2 자동 이어하기) ══════════ */
+function scrIntro(){
+  let savedCode = null;
+  try{ const c = localStorage.getItem('pinu_code'); if(c && /^[가-힣]{2}\d{3}$/.test(c)) savedCode = c; }catch(e){}
+  const sc = el(`<section class="screen night noback">
+    <div class="spacer"></div>
+    <div class="eyebrow">네 개의 이야기, 네 번의 선택</div>
+    <h1>너라면<br>어떻게 할래?</h1>
+    <p class="intro-sub">피부에 닿는 민주주의 · 나의 선택이 만드는 물결</p>
+    <p class="serif" style="margin-top:16px">단톡방, 조별과제, 영상 피드, 학급회의 —<br>
+    매일 만나는 진짜 같은 이야기 속에서<br>
+    너의 선택 하나가 어디까지 퍼져 가는지 보여 줄게요.</p>
+    <p>정답도 점수도 없어요. 이름도 묻지 않아요.<br>그러니까, 평소의 나로 솔직하게 골라 보세요.</p>
+    <div class="spacer"></div>
+    <div id="btns"></div>
+    <div style="text-align:center;margin-top:8px">
+      <button class="linky" id="other" style="color:var(--paper-dim);font-size:14px">다른 기기에서 이어 오기</button>
+    </div>
+    <div id="resumeBox" style="display:none;margin-top:12px">
+      <div style="display:flex;gap:8px;max-width:340px;margin:0 auto">
+        <input id="codeIn" placeholder="예: 하늘123" maxlength="5"
+          style="flex:1;font-family:var(--sans);font-size:17px;padding:12px 14px;border:1.5px solid rgba(59,54,48,.25);border-radius:12px;background:#fff">
+        <button class="btn" id="codeGo" style="margin:0;padding:12px 18px;font-size:16px">이어오기</button>
+      </div>
+      <p class="note" id="codeMsg" style="text-align:center;margin-top:8px">먼저 쓰던 기기의 물결 지도에 있는 이어하기 코드를 입력하세요.</p>
+    </div>
+    <div style="display:flex;justify-content:center;gap:18px;margin-top:14px;flex-wrap:wrap">
+      <button class="linky" id="onbAgain">처음이세요? 1분 안내 보기</button>
+      <button class="linky" id="guideGo">보호자·선생님이신가요?</button>
+    </div>
+    <p class="note">선택 내용은 이름 없이(익명으로) 숫자 집계에만 쓰여요. 진행 상황은 이 기기에 자동 저장돼요 — 새로고침해도, 내일 다시 와도 그대로 이어져요.<br>속마음 답변과 내가 쓴 생각 조각은 이 기기에만 남고, 서버로 보내지 않아요.</p>
+  </section>`);
+  const btns = sc.querySelector('#btns');
+  if(savedCode){
+    btns.innerHTML = `<button class="btn" id="resumeGo">이어서 하기 — 지난번 그대로</button>
+      <button class="btn ghost" id="fresh">처음부터 새로 시작</button>`;
+    btns.querySelector('#resumeGo').onclick = e=>{
+      e.target.textContent = '불러오는 중…';
+      loadProgress(savedCode, o=>{
+        S.code = savedCode;
+        if(o) applyState(o);
+        if(S.check.every(x=>x!==null)) navHome();
+        else nav(scrCheck);
+      });
+    };
+    (()=>{ // 새로 시작: 두 번 눌러 확정
+      const f = btns.querySelector('#fresh');
+      let armed=false, timer=null;
+      f.onclick = ()=>{
+        if(armed){
+          clearTimeout(timer);
+          S.check=[null,null,null,null,null]; S.done={}; S.extra={}; S.notes={}; S.trail={};
+          S.ui={rippleSeen:{},lawSolved:{},drafts:{},feedHot:0}; S.rec={};
+          S.code = savedCode;
+          saveProgress();
+          nav(scrCheck);
+          return;
+        }
+        armed=true; f.textContent='지난 기록이 새로 시작돼요 — 한 번 더 누르면 진행';
+        f.style.color='var(--signal)'; f.style.borderColor='var(--signal)';
+        timer=setTimeout(()=>{ armed=false; f.textContent='처음부터 새로 시작'; f.style.color=''; f.style.borderColor=''; }, 4000);
+      };
+    })();
+  } else {
+    btns.innerHTML = `<button class="btn" id="go">시작하기</button>`;
+    btns.querySelector('#go').onclick = ()=>nav(scrCheck);
+  }
+  sc.querySelector('#other').onclick = ()=>{
+    const box = sc.querySelector('#resumeBox');
+    box.style.display = box.style.display==='none' ? 'block' : 'none';
+  };
+  sc.querySelector('#codeGo').onclick = ()=>{
+    const code = sc.querySelector('#codeIn').value.trim();
+    const msg = sc.querySelector('#codeMsg');
+    if(!/^[가-힣]{2}\d{3}$/.test(code)){ msg.textContent = '코드는 “하늘123”처럼 글자 2자 + 숫자 3자예요.'; return; }
+    msg.textContent = '불러오는 중…';
+    loadProgress(code, o=>{
+      if(o && applyState(o)){
+        S.code = code;
+        try{ localStorage.setItem('pinu_code', code); }catch(e){}
+        if(S.check.every(x=>x!==null)) navHome(); else nav(scrCheck);
+      } else {
+        msg.textContent = '이 코드로 저장된 기록을 찾지 못했어요. 코드를 다시 확인해 주세요.';
+      }
+    });
+  };
+  sc.querySelector('#onbAgain').onclick = ()=>showOnb(false);
+  sc.querySelector('#guideGo').onclick = ()=>nav(scrGuide);
+  show(sc);
+}
+
+/* ══════════ 보호자·교사 가이드 (R5) ══════════ */
+function scrGuide(){
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">보호자·선생님을 위한 안내</div>
+    <h2>이 앱은<br>이런 앱이에요</h2>
+    <div class="guide-card">「너라면 어떻게 할래?」는 초등 고학년 학생이 <b>단톡방·조별과제·영상 피드·학급회의</b>라는 일상 장면 속에서 직접 선택을 해 보고, 그 선택이 만드는 파급(물결)을 따라가 보는 <b>민주시민 체험 학습 앱</b>입니다. 혐오 표현, 결과만 보는 판단, 가짜 뉴스, 다수결과 소수자 존중이라는 네 가지 주제를 다룹니다.</div>
+    <div class="guide-card">앱은 학생을 채점하거나 판정하지 않습니다. 대신 시작할 때의 자기 평가(“말한 나”)와 실제 선택(“선택한 나”)을 나란히 보여 주어, 학생이 <b>생각과 행동 사이의 간격을 스스로 발견</b>하도록 돕습니다. 마지막에는 “나의 물결 유형”과 시민 나이테, 헌법 배지를 받아요. 모든 유형은 좋고 나쁨이 없으며, 다시 하면 달라질 수 있는 “오늘 걸은 길의 모양”입니다.</div>
+    <div class="guide-card"><b>익명·개인정보</b> — 이름, 학번, 계정을 일절 수집하지 않습니다. 서버에는 어떤 선택을 몇 명이 했는지 숫자만 기록됩니다. 학생이 적는 속마음 답변과 생각 문장은 학생의 기기에만 저장되고 서버로 전송되지 않습니다.</div>
+    <div class="guide-warn"><b>꼭 부탁드려요</b> — 이 앱의 결과(유형, 걸은 길, 간격)를 아이를 평가하거나 혼내는 데 사용하지 말아 주세요. <b>솔직함이 이 앱의 재료입니다.</b> 아이가 “나쁜 선택”을 해 봤다면, 그것은 안전한 연습장에서 그 선택의 결과를 미리 본 것입니다.</div>
+    <div class="guide-card"><b>함께 나눌 질문</b><br>① “네 개 이야기 중에 제일 고민됐던 순간이 어디였어?”<br>② “너의 물결 유형은 뭐가 나왔어? 왜 그게 나온 것 같아?”<br>③ “이번 주 미션, 뭐가 나왔어? 같이 해 볼까?”</div>
+    <div class="guide-card"><b>권장 사용</b> — 한 번에 이야기 하나(약 10분)씩, 주 1회 정도가 좋습니다. 학교 수업에서는 시나리오당 30~40분(체험 → 분포 함께 보기 → 토론 → 헌법 렌즈)을 권장합니다. 교사용 화면은 주소 뒤에 <b>?mode=teacher</b>를 붙이면 열립니다.</div>
+    <div class="spacer"></div>
+    <button class="btn" id="toStudent">학생 화면으로 가기</button>
+  </section>`);
+  sc.querySelector('#toStudent').onclick = ()=>{ NAV=[{fn:scrIntro,a:[]}]; scrIntro(); };
+  show(sc);
+}
+
+/* ══════════ 1. 자가진단 (거울의 재료) ══════════ */
+const CHECK_Q = [
+  '나는 잘못된 것을 보면 말하는 편이다',
+  '나는 다른 사람이 상처받을 말은 하지 않는다',
+  '나는 결과만 보고 사람을 판단하지 않는다',
+  '나는 인터넷에서 본 것을 퍼뜨리기 전에 사실인지 확인한다',
+  '나는 다수의 결정이라도 소외되는 사람이 없는지 살핀다'
+];
+function scrCheck(){
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">들어가기 전에</div>
+    <h2>당신은 어떤 사람인가요?</h2>
+    <p>너무 오래 고민하지 말고, 평소의 나를 떠올리면서 솔직하게 눌러 주세요. 이 답은 네 개의 물결이 끝날 때마다 다시 만나게 될 거예요.</p>
+    <div id="qs"></div>
+    <div class="spacer"></div>
+    <button class="btn" id="go" disabled style="opacity:.4">물결 지도 열기</button>
+  </section>`);
+  const qs = sc.querySelector('#qs');
+  function gateCheck(){
+    if(S.check.every(x=>x!==null)){ const b=sc.querySelector('#go'); b.disabled=false; b.style.opacity=1; }
+  }
+  CHECK_Q.forEach((q,qi)=>{
+    const card = el(`<div class="q-card"><div class="q">“${q}”</div>
+      <div class="dots" role="radiogroup" aria-label="${q}"></div>
+      <div class="dots-label"><span>전혀 아니다</span><span>매우 그렇다</span></div></div>`);
+    const dots = card.querySelector('.dots');
+    for(let v=1; v<=5; v++){
+      const d = el(`<button class="dot" role="radio" aria-label="${v}점"></button>`);
+      d.onclick = ()=>{
+        S.check[qi]=v;
+        dots.querySelectorAll('.dot').forEach((x,i)=>x.classList.toggle('sel', i<v));
+        saveProgress();
+        gateCheck();
+      };
+      dots.appendChild(d);
+    }
+    // 뒤로 갔다 돌아와도 입력 유지 (R1)
+    if(S.check[qi]!==null){
+      dots.querySelectorAll('.dot').forEach((x,i)=>x.classList.toggle('sel', i<S.check[qi]));
+    }
+    qs.appendChild(card);
+  });
+  gateCheck();
+  sc.querySelector('#go').onclick = ()=>navHome();
+  show(sc);
+}
+
+/* ══════════ 2. 홈 허브 ══════════ */
+function scrHome(){
+  ensureCode();
+  saveProgress();
+  const dc = doneCount();
+  const dn = dictCount();
+  const sc = el(`<section class="screen night noback">
+    <div class="eyebrow">물결 지도 · ${dc} / 4 완료</div>
+    <h2>어느 자리에<br>서 볼까요?</h2>
+    <div id="missionAsk"></div>
+    <div class="hub-ring">
+      <svg width="96" height="96" viewBox="0 0 96 96">${hubRingSVG()}</svg>
+      <div class="hr-txt"><b>시민 나이테</b><br>물결을 하나 지날 때마다 나이테가 한 겹씩 자라요. 색은 그때 당신이 걸은 길을 담아요. 점수가 아니라 기록이에요.</div>
+    </div>
+    ${lawChips()}
+    ${dn>0?`<p class="wordcount">📖 낱말 수집 ${dn}/${Object.keys(DICT).length} — 밑줄 낱말을 눌러 모아 보세요</p>`:''}
+    <div id="cards"></div>
+    ${dc>=4?'<button class="btn" id="fin" style="margin-top:4px">마지막 거울 — 나의 물결 유형 보러 가기 →</button>':
+      '<p class="note">네 개의 물결을 모두 지나면, ‘말한 나’와 ‘선택한 나’를 나란히 놓는 마지막 거울과 <b>나의 물결 유형</b>이 열려요.</p>'}
+    <details class="code-details"><summary>🔖 다른 기기로 옮기고 싶다면</summary>
+      <div class="cd-body">${wolSVG(34)}<div>이어하기 코드: <b style="font-size:16px;color:var(--ripple)">${S.code}</b><br>
+      <span style="color:var(--paper-dim);font-size:13.5px">이 기기에서는 자동 저장되니까 코드가 필요 없어요. 다른 기기로 옮길 때만, 그 기기 첫 화면의 “다른 기기에서 이어 오기”에 이 코드를 넣으세요.</span></div></div>
+    </details>
+  </section>`);
+  // 실천 미션 안부 묻기 (R8)
+  renderMissionAsk(sc.querySelector('#missionAsk'));
+  const cards = sc.querySelector('#cards');
+  [1,2,3,4].forEach(n=>{
+    const d = S.done[n];
+    const inProg = !d && S.trail[n] && S.trail[n].length;
+    const c = el(`<div class="sc-card${d?' done':''}" tabindex="0" role="button">
+      <span class="sc-no">${d?'완료 · ':(inProg?'진행 중 · ':'')}${SC_META[n].no}</span>
+      <div class="sc-title">${SC_META[n].title}</div>
+      <div class="sc-tag">${SC_META[n].tag}</div>
+      ${d?`<span class="sc-done" style="color:${STANCE_META[n][d.stance].c};background:rgba(255,255,255,.65)">완료 · ${STANCE_META[n][d.stance].n}</span>
+        <div class="sc-actions">
+          <button data-act="review">📖 내 물결 다시 보기</button>
+          <button data-act="redo">↺ 다른 길 걸어 보기</button>
+        </div>`
+      : inProg?`<span class="sc-done" style="color:var(--ripple);background:rgba(255,255,255,.65)">▶ 하던 곳부터 이어져요</span>`:''}
+    </div>`);
+    if(d){
+      c.querySelector('[data-act="review"]').onclick = e=>{ e.stopPropagation(); nav(scrRipple, n); };
+      c.querySelector('[data-act="redo"]').onclick = e=>{ e.stopPropagation(); startScenario(n, true); };
+    } else {
+      c.onclick = ()=>startScenario(n);
+      c.onkeydown = e=>{ if(e.key==='Enter') startScenario(n); };
+    }
+    cards.appendChild(c);
+  });
+  if(dc>=4) sc.querySelector('#fin').onclick = ()=>nav(scrFinal);
+  show(sc);
+  coach('home','카드를 눌러 이야기를 시작해 보세요. 순서는 마음대로예요.');
+}
+function hubRingSVG(){
+  const cx=48, cy=54, rs=[12,20,28,36];
+  let out = `<circle cx="${cx}" cy="${cy}" r="39" fill="rgba(59,54,48,.05)"/>`;
+  [1,2,3,4].forEach((n,i)=>{
+    const r=rs[i], d=S.done[n], circ=(2*Math.PI*r).toFixed(1);
+    out += d
+      ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+           stroke="${STANCE_META[n][d.stance].c}" stroke-width="5.5" stroke-linecap="round"
+           stroke-dasharray="${(circ*0.88).toFixed(1)} ${(circ*0.12).toFixed(1)}"
+           transform="rotate(${n*67} ${cx} ${cy})" opacity=".95"/>`
+      : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none"
+           stroke="rgba(59,54,48,.18)" stroke-width="1.6" stroke-dasharray="2.5 5"/>`;
+  });
+  out += `<circle cx="${cx}" cy="${cy}" r="8" fill="#F2A93B"/>
+    <circle cx="${cx-3}" cy="${cy-1.5}" r="1.4" fill="#4A3318"/>
+    <circle cx="${cx+3}" cy="${cy-1.5}" r="1.4" fill="#4A3318"/>
+    <path d="M ${cx-3.4} ${cy+1.8} Q ${cx} ${cy+4.8} ${cx+3.4} ${cy+1.8}"
+      stroke="#4A3318" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="${cx-5.8}" cy="${cy+1.2}" rx="1.7" ry="1.1" fill="#E4573D" opacity=".45"/>
+    <ellipse cx="${cx+5.8}" cy="${cy+1.2}" rx="1.7" ry="1.1" fill="#E4573D" opacity=".45"/>`;
+  out += `<path d="M ${cx} 16 Q ${cx-1} 11.5 ${cx} 8.5"
+      stroke="#7FB59B" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    <path d="M ${cx} 9.5 Q ${cx-8.5} 7 ${cx-8} 1.5 Q ${cx-1.5} 3.5 ${cx} 9.5 Z" fill="#7FB59B"/>
+    <path d="M ${cx} 9.5 Q ${cx+8.5} 7 ${cx+8} 1.5 Q ${cx+1.5} 3.5 ${cx} 9.5 Z" fill="#A9CDBB"/>`;
+  const spark=(x,y,s,o)=>`<path d="M ${x} ${y-s} L ${x+s*.32} ${y-s*.32} L ${x+s} ${y} L ${x+s*.32} ${y+s*.32} L ${x} ${y+s} L ${x-s*.32} ${y+s*.32} L ${x-s} ${y} L ${x-s*.32} ${y-s*.32} Z" fill="#F2A93B" opacity="${o}"/>`;
+  out += spark(84,30,4,.8) + spark(12,66,3,.55) + spark(80,74,2.5,.45);
+  return out;
+}
+/* ── 헌법 렌즈 배지 (조문별 상징 아이콘 메달) ── */
+const CHIP_META = {
+  '제10조':      { ic:'heart',    c:'#E4573D', why:'존엄' },
+  '제21조':      { ic:'bubble',   c:'#6FA8FF', why:'표현' },
+  '제31조':      { ic:'pencil',   c:'#F2A93B', why:'교육' },
+  '제34조':      { ic:'umbrella', c:'#7FB59B', why:'삶' },
+  '제17조':      { ic:'lock',     c:'#C98AB8', why:'사생활' },
+  '제1조 제2항': { ic:'crown',    c:'#F2A93B', why:'주권' },
+  '알 권리':     { ic:'mag',      c:'#6FA8FF', why:'확인' },
+  '제1조 제1항': { ic:'people',   c:'#E4573D', why:'공화' },
+  '제11조':      { ic:'scale',    c:'#C9B45A', why:'평등' }
+};
+const CHIP_ICONS = {
+  heart: c=>`<path d="M26 31.5 C 17.5 25 17.5 17.5 22.3 15.9 C 25 15 26 17.4 26 18.4 C 26 17.4 27 15 29.7 15.9 C 34.5 17.5 34.5 25 26 31.5 Z" fill="${c}"/>
+    <circle cx="22.7" cy="19.5" r="1.1" fill="#fff" opacity=".55"/>`,
+  bubble: c=>`<rect x="16.5" y="14.5" width="19" height="13.5" rx="6.5" fill="${c}"/>
+    <path d="M22 27.5 L20.7 32.5 L27 28 Z" fill="${c}"/>
+    <circle cx="22" cy="21.2" r="1.35" fill="#101A2E"/><circle cx="26" cy="21.2" r="1.35" fill="#101A2E"/><circle cx="30" cy="21.2" r="1.35" fill="#101A2E"/>`,
+  pencil: c=>`<g transform="rotate(43 26 24)">
+    <rect x="23" y="11.5" width="6" height="16" rx="1.6" fill="${c}"/>
+    <rect x="23" y="11.5" width="6" height="4" rx="1.6" fill="#F6F0E1" opacity=".75"/>
+    <path d="M23 27.5 L26 34 L29 27.5 Z" fill="${c}"/>
+    <path d="M25 31.8 L26 34 L27 31.8 Z" fill="#101A2E"/></g>`,
+  umbrella: c=>`<path d="M15 23.5 A11 11 0 0 1 37 23.5 L15 23.5 Z" fill="${c}"/>
+    <circle cx="26" cy="12" r="1.4" fill="${c}"/>
+    <path d="M26 23.5 V30.5 A2.7 2.7 0 0 1 20.6 30.5" stroke="${c}" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M19 21 Q 22.5 18.5 26 21 Q 29.5 18.5 33 21" stroke="#fff" stroke-width="1" fill="none" opacity=".4"/>`,
+  lock: c=>`<rect x="18.5" y="20.5" width="15" height="11.5" rx="3.8" fill="${c}"/>
+    <path d="M21.8 20.5 V18.2 A4.2 4.2 0 0 1 30.2 18.2 V20.5" stroke="${c}" stroke-width="2.7" fill="none"/>
+    <circle cx="26" cy="25.3" r="1.8" fill="#101A2E"/><rect x="25.2" y="26" width="1.6" height="3" rx="0.8" fill="#101A2E"/>`,
+  crown: c=>`<path d="M17 29.5 L15.3 17.5 L21.5 22 L26 14.8 L30.5 22 L36.7 17.5 L35 29.5 Z" fill="${c}"/>
+    <circle cx="21" cy="26.5" r="1.15" fill="#fff" opacity=".7"/><circle cx="26" cy="26.5" r="1.15" fill="#fff" opacity=".7"/><circle cx="31" cy="26.5" r="1.15" fill="#fff" opacity=".7"/>`,
+  mag: c=>`<circle cx="23" cy="21" r="6.8" fill="none" stroke="${c}" stroke-width="3"/>
+    <circle cx="21" cy="19" r="1.6" fill="${c}" opacity=".5"/>
+    <line x1="28.2" y1="26.2" x2="34.5" y2="32.5" stroke="${c}" stroke-width="3.6" stroke-linecap="round"/>`,
+  people: c=>`<circle cx="20.8" cy="19" r="4.1" fill="${c}"/><circle cx="31.2" cy="19" r="4.1" fill="${c}" opacity=".72"/>
+    <path d="M14 31.5 a6.8 6.8 0 0 1 13.6 0 Z" fill="${c}"/>
+    <path d="M24.4 31.5 a6.8 6.8 0 0 1 13.6 0 Z" fill="${c}" opacity=".72"/>
+    <path d="M24.5 26.5 Q 26 25 27.5 26.5" stroke="#fff" stroke-width="1.2" fill="none" opacity=".6"/>`,
+  scale: c=>`<line x1="26" y1="14" x2="26" y2="30" stroke="${c}" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="16.5" y1="16.8" x2="35.5" y2="16.8" stroke="${c}" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M16.5 16.8 L13.8 23.4 M16.5 16.8 L19.2 23.4" stroke="${c}" stroke-width="1.2"/>
+    <path d="M12.6 23.4 a3.9 3.9 0 0 0 7.8 0 Z" fill="${c}"/>
+    <path d="M35.5 16.8 L32.8 23.4 M35.5 16.8 L38.2 23.4" stroke="${c}" stroke-width="1.2"/>
+    <path d="M31.6 23.4 a3.9 3.9 0 0 0 7.8 0 Z" fill="${c}"/>
+    <line x1="21.5" y1="31" x2="30.5" y2="31" stroke="${c}" stroke-width="2.4" stroke-linecap="round"/>`
+};
+function chipSVG(label){
+  const M = CHIP_META[label] || { ic:'heart', c:'#6FA8FF' };
+  return `<svg width="54" height="60" viewBox="0 0 52 58" aria-label="${label} 배지">
+    <path d="M17 37 L13 53 L20.5 48 L26 55 L31.5 48 L39 53 L35 37 Z" fill="${M.c}" opacity=".5"/>
+    <circle cx="26" cy="24" r="19" fill="${M.c}" opacity=".16"/>
+    <circle cx="26" cy="24" r="19" fill="none" stroke="${M.c}" stroke-width="3.6"
+      stroke-dasharray="0.1 7.45" stroke-linecap="round"/>
+    ${CHIP_ICONS[M.ic](M.c)}
+    <path d="M42 6.5 l1.1 2.4 2.4 1.1 -2.4 1.1 -1.1 2.4 -1.1 -2.4 -2.4 -1.1 2.4 -1.1 Z" fill="#F2A93B" opacity=".9"/>
+  </svg>`;
+}
+function chipBadge(label, isNew){
+  return `<div class="chip-badge${isNew?' new':''}">${chipSVG(label)}<span>${label}</span></div>`;
+}
+function lawChips(){
+  const got=[]; [1,2,3,4].forEach(n=>{ if(S.done[n]) LAW[n].chips.forEach(c=>got.push(c)); });
+  if(!got.length) return '<p class="note" style="margin:0 0 14px">헌법 렌즈 수집: 아직 없음 — 각 물결의 끝에서 헌법 배지를 하나씩 모으게 돼요.</p>';
+  return `<div style="margin-bottom:10px"><div class="note" style="margin:0 0 6px">내가 모은 헌법 렌즈 (${got.length}/9)</div><div class="chip-shelf">${got.map(c=>chipBadge(c)).join('')}</div></div>`;
+}
+function startScenario(n, restart){
+  S.cur=n; S.c1=null; S.c2=null;
+  const resume = !restart && S.trail[n] && S.trail[n].length && !S.done[n];
+  if(!resume){
+    S.trail[n]=[]; S.extra[n]={};
+    if(S.ui.rippleSeen) delete S.ui.rippleSeen[n];
+    if(S.ui.lawSolved) delete S.ui.lawSolved[n];
+    saveProgress();
+  }
+  if(n===3 && !resume) nav(scrFeed); else nav(scrChat, n);
+}
+
+/* ══════════ 3. 채팅 엔진 (공용 · v2: 이어하기 재구성 지원) ══════════ */
+const WHO = { 민재:'😎', 서준:'🏀', 하율:'🎧', 유나:'🐰', 다은:'📚', 준호:'⚽', 시우:'🙂', 수아:'⭐', 도윤:'🌿', 지호:'🌙', 조리사님:'🍚' };
+const ROOM0 = { 1:['5학년 2반','23'], 2:['국어 모둠 4조','4'], 3:['5학년 2반','23'], 4:['학급회의 · 5학년 2반','23'] };
+
+const shuf = a => a.slice().sort(()=>Math.random()-.5);
+function scrChat(n){
+  S.cur = n;
+  // 이어하기·다시 보기(R1): 기록된 선택을 즉시 재적용하며 대화를 재구성한다
+  let RQ = (S.trail[n] && S.trail[n].length) ? S.trail[n].slice() : null;
+  const FAST = !!(RQ && S.done[n]); // 완료된 시나리오 다시 보기 — 끝까지 즉시 재생
+  const D = ms => (RQ || FAST) ? 0 : ms*S.speed;
+  const rec = o => { if(RQ) return; (S.trail[n]=S.trail[n]||[]).push(o); saveProgress(); };
+  const rqNext = t => {
+    if(!RQ || !RQ.length){ RQ=null; return null; }
+    if(RQ[0].t!==t){ RQ=null; return null; } // 기록과 대본이 어긋나면 라이브로 전환
+    const r = RQ.shift();
+    if(!RQ.length && !FAST) RQ=null;
+    return r;
+  };
+  const sc = el(`<section class="screen chatworld">
+    <div class="chat-top">
+      <button class="live" id="bk" style="background:none;border:1px solid #D8DEE8;border-radius:999px;padding:4px 12px;cursor:pointer;font-family:var(--sans);margin-left:0;font-size:13px" aria-label="뒤로 가기">←</button>
+      <span class="room" id="room">${ROOM0[n][0]}</span><span class="cnt" id="cnt">${ROOM0[n][1]}</span>
+      <button class="live" id="rst" style="background:none;border:1px solid #D8DEE8;border-radius:999px;padding:4px 10px;cursor:pointer;font-family:var(--sans)">↺ 처음부터</button>
+      <button class="live" id="ff" style="background:none;border:1px solid #D8DEE8;border-radius:999px;padding:4px 10px;cursor:pointer;font-family:var(--sans);margin-left:6px">⏩ 빨리감기</button>
+    </div>
+    <div class="chat-scroll" id="scroll"></div>
+    <div class="choice-panel" id="panel"></div>
+  </section>`);
+  sc.querySelector('#bk').onclick = ()=>goBack();
+  (()=>{ // 처음부터: 팝업 없이 두 번 눌러 확정 (GAS에서는 confirm 창이 차단됨)
+    const rst = sc.querySelector('#rst');
+    let armed = false, timer = null;
+    rst.onclick = ()=>{
+      if(armed){ clearTimeout(timer); startScenario(n, true); return; }
+      armed = true;
+      rst.textContent = '한 번 더 누르면 처음부터!';
+      rst.style.borderColor = 'var(--signal)';
+      rst.style.color = 'var(--signal)';
+      timer = setTimeout(()=>{
+        armed = false;
+        rst.textContent = '↺ 처음부터';
+        rst.style.borderColor = '#D8DEE8';
+        rst.style.color = '';
+      }, 3500);
+    };
+  })();
+  sc.querySelector('#ff').onclick = (e)=>{
+    S.speed = S.speed===1 ? .22 : 1;
+    e.target.textContent = S.speed===1 ? '⏩ 빨리감기' : '▶ 보통 속도';
+  };
+  show(sc);
+  const scroll = sc.querySelector('#scroll'), panel = sc.querySelector('#panel');
+  let stick = true; // 사용자가 위로 스크롤하면 자동 따라가기를 멈춘다
+  scroll.addEventListener('scroll', ()=>{
+    stick = scroll.scrollHeight - scroll.scrollTop - scroll.clientHeight < 90;
+  });
+  const down = (force)=>{ if(stick || force) scroll.scrollTop = scroll.scrollHeight; };
+  const openPanel = ()=>{
+    requestAnimationFrame(()=>{
+      scroll.style.paddingBottom = (panel.offsetHeight + 28) + 'px';
+      down(true);
+    });
+  };
+  const closePanel = ()=>{ panel.classList.remove('up'); panel.innerHTML=''; scroll.style.paddingBottom=''; };
+  let lastWho = null;
+  let saidOverride = null;   // 직접 쓴 말 — 다음 '내 말풍선'을 이 문장으로 교체
+
+  function freeUI(st){
+    return `<button class="opt free-toggle" id="freeT">✏️ 내 말로 직접 쓰기<span class="tag">고른 말 말고, 진짜 내가 할 말 그대로</span></button>
+      <div class="free-box" id="freeB" style="display:none">
+        <textarea id="freeTa" rows="2" maxlength="120" placeholder="${st.free.ph}"></textarea>
+        <button class="opt" id="freeGo" style="text-align:center;border-color:var(--signal)">이 말로 하기 →</button>
+        <div class="note" id="freeMsg" style="margin:6px 0 0;text-align:center"></div>
+      </div>`;
+  }
+  function wireFree(st, next){
+    const t = panel.querySelector('#freeT'); if(!t) return;
+    t.onclick = ()=>{
+      panel.querySelector('#freeB').style.display='block';
+      t.style.display='none'; openPanel();
+      panel.querySelector('#freeTa').focus();
+    };
+    panel.querySelector('#freeGo').onclick = ()=>{
+      const txt = panel.querySelector('#freeTa').value.trim();
+      if(txt.length<2){ panel.querySelector('#freeMsg').textContent='한 마디면 충분해요 — 두 글자 이상 적어 주세요.'; return; }
+      const k = st.free.fn(txt);
+      S.extra[n] = S.extra[n]||{};
+      S.extra[n].said = { k:k, t:txt };
+      saidOverride = txt;
+      rec({t:'c', k:k, free:txt});
+      panel.classList.remove('hold');
+      closePanel(); st.pick(k, next);
+    };
+  }
+  function applyFree(r){
+    if(r && r.free){
+      S.extra[n] = S.extra[n]||{};
+      S.extra[n].said = { k:r.k, t:r.free };
+      saidOverride = r.free;
+    }
+  }
+
+  function put(node){ scroll.appendChild(node); down(); }
+  function msg(who, text, mine){
+    const same = !mine && who===lastWho; lastWho = mine?'__me':who;
+    return el(`<div class="msg ${mine?'mine':''} ${same?'same':''}">
+      <div class="avatar">${mine?'':(WHO[who]||'')}</div>
+      <div class="body">${mine?'':`<div class="name">${who}</div>`}<div class="bubble">${text}</div></div></div>`);
+  }
+  function typing(who){
+    return el(`<div class="msg typing"><div class="avatar">${WHO[who]||''}</div>
+      <div class="body"><div class="name">${who}</div><div class="bubble">···</div></div></div>`);
+  }
+  function card(who, inner){
+    lastWho = who;
+    return el(`<div class="msg"><div class="avatar">${WHO[who]||''}</div>
+      <div class="body"><div class="name">${who}</div>${inner}</div></div>`);
+  }
+  function pollResult(p, st, my){
+    const total = st.opts.reduce((a,o)=>a+o.v,0)+1;
+    const win = st.opts.reduce((m,o,k)=> (o.v+(k===my?1:0)) > (st.opts[m].v+(m===my?1:0)) ? k : m, 0);
+    p.innerHTML = `<div class="p-q">${st.q} — 결과</div>` + st.opts.map((o,k)=>{
+      const v = o.v+(k===my?1:0), pct = Math.round(v/total*100);
+      return `<div class="p-res ${k===win?'win':''}"><div class="pr-l"><span>${o.x}${k===my?' (내 표)':''}</span><span>${v}표</span></div>
+        <div class="pr-b"><i style="width:${pct}%"></i></div></div>`;
+    }).join('');
+  }
+
+  function play(steps, done){
+    let i = 0;
+    (function next(){
+      if(i>=steps.length){ done&&done(); return; }
+      const st = steps[i++];
+      if(st.t==='sys'){ put(el(`<div class="sysline">${st.x}</div>`)); setTimeout(next, D(900)); }
+      else if(st.t==='narr'){ setTimeout(()=>{ put(el(`<div class="narr">${dicify(st.x)}</div>`)); setTimeout(next, D(Math.min(1400 + st.x.length*18, 4200))); }, D(600)); }
+      else if(st.t==='mine'){
+        if(saidOverride){ put(msg(null, esc(saidOverride), true)); saidOverride=null; }
+        else put(msg(null, st.x, true));
+        setTimeout(next, D(1200));
+      }
+      else if(st.t==='msg'){
+        const tp = typing(st.who); put(tp);
+        const d = D(Math.min(700 + st.x.length*30, 2600));
+        setTimeout(()=>{ tp.replaceWith(msg(st.who, st.x)); down(); setTimeout(next, D(Math.min(600 + st.x.length*14, 1800))); }, d);
+      }
+      else if(st.t==='card'){
+        const tp = typing(st.who); put(tp);
+        setTimeout(()=>{ tp.replaceWith(card(st.who, st.html)); down(); setTimeout(next, D(2600)); }, D(1600));
+      }
+      else if(st.t==='poll'){
+        const p = el(`<div class="poll"><div class="p-q">${st.q}</div>
+          ${st.opts.map((o,k)=>`<button class="p-opt" data-k="${k}">${o.x}</button>`).join('')}</div>`);
+        put(card(st.who, '')); scroll.lastChild.querySelector('.body').appendChild(p); down();
+        const r = rqNext('p');
+        if(r){ pollResult(p, st, r.k); down(); setTimeout(next, D(1800)); return; }
+        p.querySelectorAll('.p-opt').forEach(b=>{
+          b.onclick = ()=>{
+            const my = +b.dataset.k;
+            rec({t:'p', k:my});
+            pollResult(p, st, my);
+            down(); setTimeout(next, D(1800));
+          };
+        });
+      }
+      else if(st.t==='pause'){ setTimeout(next, D(st.ms)); }
+      else if(st.t==='room'){ sc.querySelector('#room').textContent=st.x; sc.querySelector('#cnt').textContent=st.n||''; put(el(`<div class="sysline">${st.x} 님과의 대화</div>`)); lastWho=null; setTimeout(next, D(600)); }
+      else if(st.t==='choice'){
+        const r = rqNext('c');
+        if(r){ applyFree(r); panel.classList.remove('hold'); st.pick(r.k, next); return; }
+        const opts = st.keepOrder ? st.opts : shuf(st.opts);
+        panel.classList.toggle('hold', !!st.hold);
+        panel.innerHTML = `<div class="cp-title">${st.title}</div>` +
+          opts.map(o=>`<button class="opt" data-k="${o.k}">${o.x}${o.tag?`<span class="tag">${o.tag}</span>`:''}</button>`).join('') +
+          (st.free ? freeUI(st) : '');
+        setTimeout(()=>{ panel.classList.add('up'); openPanel(); }, 250);
+        panel.querySelectorAll('.opt[data-k]').forEach(b=>{
+          b.onclick = ()=>{ rec({t:'c', k:b.dataset.k}); panel.classList.remove('hold'); closePanel(); st.pick(b.dataset.k, next); };
+        });
+        if(st.free) wireFree(st, next);
+      }
+      else if(st.t==='inner'){
+        // 속마음 스냅샷 — 서버로 전송되지 않는 나만의 답 (이 기기에만 저장)
+        const r = rqNext('i');
+        if(r){ const o=st.opts.find(x=>x.k===r.k); if(o){ S.extra[n]=S.extra[n]||{}; S.extra[n].inner={k:o.k,x:o.x}; } next(); return; }
+        const opts = shuf(st.opts);
+        panel.innerHTML = `<div class="inner-badge">🔒 나만 보는 질문 — 이 답은 폰 밖으로 나가지 않아요</div>
+          <div class="cp-title">${st.title}</div>` +
+          opts.map(o=>`<button class="opt inner" data-k="${o.k}">${o.x}</button>`).join('');
+        setTimeout(()=>{ panel.classList.add('up'); openPanel(); }, 250);
+        panel.querySelectorAll('.opt').forEach(b=>{
+          b.onclick = ()=>{
+            const o = st.opts.find(x=>x.k===b.dataset.k);
+            S.extra[n] = S.extra[n]||{};
+            S.extra[n].inner = { k:o.k, x:o.x };
+            rec({t:'i', k:o.k});
+            closePanel(); next();
+          };
+        });
+      }
+      else if(st.t==='gauge'){
+        // 숫자 추정 슬라이더 — 값은 이 기기에만 남는다
+        const r = rqNext('g');
+        if(r){ S.extra[n]=S.extra[n]||{}; S.extra[n].guess=r.v; next(); return; }
+        let v = Math.round(st.max/2);
+        panel.innerHTML = `<div class="cp-title">${st.title}</div>
+          <div class="gauge-num" id="gv">${v}명</div>
+          <div class="gauge-sub">${st.q}</div>
+          <input type="range" class="gauge" id="gr" min="0" max="${st.max}" value="${v}">
+          <button class="opt" style="text-align:center;border-color:var(--signal);margin-top:8px" id="gok">이 숫자로 예상할래</button>`;
+        setTimeout(()=>{ panel.classList.add('up'); openPanel(); }, 250);
+        panel.querySelector('#gr').oninput = e=>{ v=+e.target.value; panel.querySelector('#gv').textContent = v+'명'; };
+        panel.querySelector('#gok').onclick = ()=>{
+          S.extra[n] = S.extra[n]||{};
+          S.extra[n].guess = v;
+          rec({t:'g', v:v});
+          closePanel(); next();
+        };
+      }
+      else if(st.t==='dual'){
+        // 이중 질문: ① 가장 멋진 선택 → ② 솔직히 진짜 나라면
+        const r1 = rqNext('d1');
+        if(r1){
+          const o = st.opts.find(x=>x.k===r1.k);
+          if(o){ S.extra[n]=S.extra[n]||{}; S.extra[n].ideal={k:o.k,x:o.x}; }
+          const r2 = rqNext('c');
+          if(r2){ applyFree(r2); st.pick(r2.k, next); return; }
+          setTimeout(()=>{ panel.classList.add('up'); ask(2); }, 250);
+          return;
+        }
+        function ask(phase){
+          const opts = shuf(st.opts);
+          const head = phase===1
+            ? `<div class="dual-step">질문 ① / ②</div><div class="cp-title">${st.title1}</div>`
+            : `<div class="dual-step real">질문 ② / ②</div><div class="cp-title">${st.title2}</div>
+               <div style="text-align:center;font-size:13.5px;color:var(--paper-dim);margin:-6px 0 10px">아까 고른 답과 같아도 되고, 달라도 돼요.</div>`;
+          panel.innerHTML = head + opts.map(o=>`<button class="opt" data-k="${o.k}">${o.x}${phase===2&&o.tag?`<span class="tag">${o.tag}</span>`:''}</button>`).join('')
+            + (phase===2 && st.free ? freeUI(st) : '');
+          openPanel();
+          panel.querySelectorAll('.opt[data-k]').forEach(b=>{
+            b.onclick = ()=>{
+              const o = st.opts.find(x=>x.k===b.dataset.k);
+              if(phase===1){
+                S.extra[n] = S.extra[n]||{};
+                S.extra[n].ideal = { k:o.k, x:o.x };
+                rec({t:'d1', k:o.k});
+                ask(2);
+              } else {
+                rec({t:'c', k:o.k});
+                closePanel(); st.pick(o.k, next);
+              }
+            };
+          });
+          if(phase===2 && st.free) wireFree(st, next);
+        }
+        setTimeout(()=>{ panel.classList.add('up'); ask(1); }, 250);
+      }
+      else if(st.t==='fakeui'){
+        // 진짜 채팅창처럼 생긴 입력바 — 평소 손가락이 하는 대로
+        const r = rqNext('c');
+        if(r){ applyFree(r); st.pick(r.k, next); return; }
+        function bar(){
+          panel.innerHTML = `<div class="fakebar">
+            <button class="fk-emoji" id="fkE">ㅋㅋㅋㅋ 😂</button>
+            <button class="fk-input" id="fkI">답장 쓰기…</button>
+            <button class="fk-pass" id="fkP">그냥 넘기기 ▲</button>
+          </div>`;
+          openPanel();
+          panel.querySelector('#fkE').onclick = ()=>{ rec({t:'c',k:'laugh'}); closePanel(); st.pick('laugh', next); };
+          panel.querySelector('#fkP').onclick = ()=>{ rec({t:'c',k:'silent'}); closePanel(); st.pick('silent', next); };
+          panel.querySelector('#fkI').onclick = sheet;
+        }
+        function sheet(){
+          panel.innerHTML = `<div class="cp-title">뭐라고 보낼까?</div>
+            <button class="opt" data-k="speak">이 방에 바로 보낸다 — “야 근데 그건 좀 아니지 않냐”<span class="tag">23명이 다 본다. 분위기 깨는 애가 될 수도 있다</span></button>
+            <button class="opt" data-k="dm">민재에게만 따로 보낸다<span class="tag">단톡방에서 말하면 싸움 날 것 같아서</span></button>`
+            + (st.free ? freeUI(st) : '')
+            + `<button class="opt" data-k="back" style="text-align:center;color:var(--paper-dim)">← 돌아가기</button>`;
+          openPanel();
+          panel.querySelectorAll('.opt[data-k]').forEach(b=>{
+            b.onclick = ()=>{
+              if(b.dataset.k==='back'){ bar(); return; }
+              rec({t:'c', k:b.dataset.k});
+              closePanel(); st.pick(b.dataset.k, next);
+            };
+          });
+          if(st.free) wireFree(st, next);
+        }
+        setTimeout(()=>{ panel.classList.add('up'); bar(); }, 250);
+      }
+      else if(st.t==='end'){
+        panel.innerHTML = `<div class="cp-title">선택이 끝났어요. 위로 스크롤하면 지나간 대화를 다시 읽을 수 있어요.</div>
+          <button class="opt" style="text-align:center;border-color:var(--signal)" id="toR">이 선택이 만든 물결 보기 →</button>`;
+        setTimeout(()=>{ panel.classList.add('up'); openPanel(); }, D(400)||60);
+        panel.querySelector('#toR').onclick = ()=>finishScenario(n);
+      }
+      down();
+    })();
+  }
+
+  play(SCRIPTS[n](play));
+}
+
+function finishScenario(n){
+  const stance = STANCE_FN[n]();
+  S.done[n] = { c1:S.c1, c2:S.c2, stance:stance };
+  record(n);
+  saveProgress();
+  nav(scrRipple, n);
+}
+
+/* ══════════ 시나리오 대본 ══════════ */
+const SCRIPTS = {};
+const STANCE_FN = {};
+
+/* ── 시나리오 1 「웃긴데, 왜?」 ── */
+SCRIPTS[1] = (play)=>{
+  const INNER1 = {t:'inner', title:'방금 그 순간, 마음속에 제일 먼저 스친 생각은?', opts:[
+    {k:'funny', x:'😂 솔직히 좀 웃겼다'},
+    {k:'hmm',   x:'😐 어? 이건 좀 아닌 것 같은데'},
+    {k:'jiho',  x:'😟 지호 얼굴이 떠올랐다'},
+    {k:'none',  x:'🫥 별생각 없이 그냥 봤다'}
+  ]};
+  const S2LATE = {
+    approach: [
+      {t:'sys', x:'창가 자리'},
+      {t:'mine', x:'…뭐 해?'},
+      {t:'pause', ms:1400},
+      {t:'msg', who:'지호', x:'…그냥. 밖에 봐'},
+      {t:'mine', x:'점심 카레라던데. 같이 갈래?'},
+      {t:'pause', ms:1600},
+      {t:'msg', who:'지호', x:'…어. 그러자'},
+      {t:'msg', who:'지호', x:'(일어서며, 작게) 어제 그 방… 나도 있었어. 알지?'},
+      {t:'mine', x:'…어. 알아. 미안, 그때 바로 말 못 해서'},
+      {t:'msg', who:'지호', x:'됐어. 지금 왔잖아'},
+      {t:'narr', x:'대단한 말은 하나도 없었어요.<br>그래도 오늘 지호는, 급식실에 혼자 가지 않았어요.<br>어떤 사과는 “미안해”보다 “같이 갈래?”에 더 많이 담겨요.'},
+      {t:'end'}
+    ],
+    ignore: [
+      {t:'narr', x:'당신은 그냥 지나갔어요. 지호는 계속 창밖을 보고 있었어요.<br>어제 그 방에 쌓였던 ‘ㅋㅋㅋ’들은,<br>지호의 화면에도 그대로 남아 있어요.'},
+      {t:'end'}
+    ],
+    late: [
+      {t:'room', x:'5학년 2반', n:'23'},
+      {t:'mine', x:'야 어제 그 밈, 자꾸 생각나는데 좀 아닌 것 같다'},
+      {t:'msg', who:'하율', x:'갑자기? ㅋㅋ'},
+      {t:'mine', x:'달빛동에서 온 애가 우리 반에도 있잖아'},
+      {t:'sys', x:'…'},
+      {t:'pause', ms:1400},
+      {t:'msg', who:'유나', x:'그건 그래'},
+      {t:'narr', x:'하루 늦은 말이었어요. 하지만 이 말 덕분에 한 가지가 분명해졌어요.<br>어제 조용히 있었던 것이 ‘찬성한다’는 뜻이 아니었다는 것 —<br>그걸 처음으로, 모두가 알게 됐어요.'},
+      {t:'end'}
+    ]
+  };
+  function CLOSE(already){
+    return [
+      {t:'sys', x:'다음 날, 쉬는 시간'},
+      {t:'narr', x:'지호가 창가 자리에 혼자 앉아 있어요.<br>지호는 지난달에 달빛동에서 우리 학교로 이사 왔어요.'},
+      {t:'narr', x:'그리고, <strong>어제 그 단톡방에는 지호도 있었어요.</strong><br>‘읽음 23’이라는 숫자 — 그 스물세 명 안에 지호가 있었던 거예요.'},
+      {t:'narr', x: already
+        ? '지호는 당신이 쓴 메시지도 읽었어요. 아무 말은 없었지만 —'
+        : '지호는 당신이 처음에 쓴 말도, 그 뒤에 붙인 ‘ㅋㅋ’도 다 읽었어요.<br>둘 중 어느 쪽이 진짜 당신의 마음이었을까요?<br>지호도 궁금하고 — 어쩌면 당신 자신도 궁금할 거예요.'},
+      ...(already ? [
+        {t:'room', x:'지호', n:''},
+        {t:'msg', who:'지호', x:'어제 그 방에서 그 말 쓴 거… 너지'},
+        {t:'msg', who:'지호', x:'답 안 해도 돼. 그냥… 고맙다고. 스물세 명 중에 한 명은 있구나 싶었어'},
+        {t:'mine', x:'어. …내일 급식 같이 먹을래?'},
+        {t:'pause', ms:1400},
+        {t:'msg', who:'지호', x:'ㅋㅋ 그래'},
+        {t:'narr', x:'긴 말은 오가지 않았어요. 긴 말이 필요하지도 않았고요.<br>어제 단톡방에 쓴 한 마디가, 오늘 지호의 폰에 이렇게 도착했어요.<br>방 안의 말은 방 안에서 끝나지 않아요 — 방 밖의 한 사람에게 가서 닿아요.'}
+      ] : []),
+      {t:'end'}
+    ];
+  }
+  const LATERCHOICE = [
+    {t:'sys', x:'다음 날, 쉬는 시간'},
+    {t:'narr', x:'지호가 창가 자리에 혼자 앉아 있어요.<br>지호는 지난달에 달빛동에서 우리 학교로 이사 왔어요.'},
+    {t:'narr', x:'그리고, <strong>어제 그 단톡방에는 지호도 있었어요.</strong><br>지호의 화면에서는 웃은 사람과 가만히 있던 사람이 구분되지 않아요.<br>지호가 본 것은 그저 ‘ㅋㅋㅋ’로 가득한 방이었어요.'},
+    {t:'choice', title:'이제, 당신은 —', opts:[
+      {k:'approach', x:'지호에게 다가가 말을 건다', tag:'무슨 말을 할지는 아직 모르겠지만'},
+      {k:'ignore',   x:'모른 척 지나간다', tag:'아는 척하면 지호가 더 창피할 수도 있으니까'},
+      {k:'late',     x:'이제라도 단톡방에 말한다', tag:'늦었지만, 지금 말 안 하면 계속 못 할 것 같아서'}
+    ], pick:(k,next)=>{ S.c2=k; play(S2LATE[k], next); }}
+  ];
+  const BR1 = {
+    laugh: [
+      {t:'mine', x:'ㅋㅋㅋㅋ'},
+      {t:'msg', who:'민재', x:'그치 개웃기지 ㅋㅋㅋ 달빛동 시리즈 존웃임'},
+      {t:'msg', who:'하율', x:'내일 더 갖고옴 ㅋㅋ 거지 밈 모음 있음'},
+      {t:'narr', x:'지금 당신은 친구들 무리 안에 있어요. 같이 웃으니 편안하고 안전해요.<br>아무도 다치지 않은 것처럼 보여요. 정말 그럴까요?'},
+      {t:'pause', ms:600}, ...LATERCHOICE
+    ],
+    silent: [
+      {t:'pause', ms:1200},
+      {t:'msg', who:'서준', x:'아 맞다 낼 수학 수행 있지 않냐'},
+      {t:'msg', who:'유나', x:'헐 맞네 까먹고 있었음'},
+      {t:'narr', x:'대화는 그냥 흘러갔어요. 당신은 아무 말도 하지 않았고,<br>아무 일도 일어나지 않은 것처럼 보여요.<br>그런데 정말 아무 일도 없었던 걸까요?'},
+      {t:'pause', ms:600}, ...LATERCHOICE
+    ],
+    speak: [
+      {t:'mine', x:'야 근데 그건 좀 아니지 않냐'},
+      {t:'sys', x:'… 아무도 입력하지 않는다'},
+      {t:'pause', ms:1400},
+      {t:'msg', who:'서준', x:'아 뭐야 갑자기 ㅋㅋ 분위기'},
+      {t:'msg', who:'민재', x:'장난인데 왜그럼;; 진짜 달빛동 사냐?'},
+      {t:'msg', who:'하율', x:'진지충 등판 ㅋㅋㅋ'},
+      {t:'narr', x:'스물세 명이 보고 있는 방에서, 지금 당신은<br>‘분위기 깨는 애’가 되어 가고 있어요.<br>얼굴이 화끈거려요. 옳은 말을 했는데도요.'},
+      {t:'choice', hold:true, title:'여기서 물러설까, 한 번 더 말할까', opts:[
+        {k:'retreat', x:'“아 그냥 그렇다고~ ㅋㅋ” 하고 물러선다', tag:'더 말하면 나만 이상한 애가 될 것 같으니까'},
+        {k:'persist', x:'“웃자고 한 거 아는데, 달빛동 사는 애가 이 방에 있으면 어떨 것 같냐”', tag:'창피하지만, 틀린 말은 아니니까'}
+      ], pick:(k,next)=>{ S.c2=k; if(k==='retreat'){S.extra[1]=S.extra[1]||{};S.extra[1].folded=true;} play(k==='retreat'?[
+        {t:'mine', x:'아 그냥 그렇다고~ ㅋㅋ'},
+        {t:'msg', who:'민재', x:'ㅋㅋ 놀랐잖아'},
+        {t:'msg', who:'서준', x:'ㅋㅋㅋ'},
+        {t:'narr', x:'방 분위기는 다시 편해졌어요.<br>하지만 당신이 했던 말은 그냥 농담처럼 되어 사라졌어요.<br>친구들은 아마 금방 잊어버릴 거예요.'},
+        ...CLOSE(false)
+      ]:[
+        {t:'mine', x:'웃자고 한 거 아는데, 달빛동 사는 애가 이 방에 있으면 어떨 것 같냐'},
+        {t:'sys', x:'…'},
+        {t:'pause', ms:1600},
+        {t:'msg', who:'유나', x:'…하긴 좀 그렇긴 해'},
+        {t:'msg', who:'민재', x:'아 뭐 그렇게까지 생각 안 했는데'},
+        {t:'narr', x:'아무도 사과하지는 않았어요. 하지만 분위기가 아주 조금 달라졌어요.<br>유나가 처음으로 ‘ㅋㅋ’가 아니라, 자기 생각을 말했으니까요.'},
+        ...CLOSE(true)
+      ], next); }}
+    ],
+    dm: [
+      {t:'room', x:'민재', n:''},
+      {t:'mine', x:'아까 그 밈 좀 그렇던데. 달빛동 사는 애들이 보면 기분 어떻겠냐'},
+      {t:'msg', who:'민재', x:'엥 그냥 밈인데 ㅋㅋ 다들 웃었잖아'},
+      {t:'choice', hold:true, title:'여기서, 당신은 —', opts:[
+        {k:'push', x:'“다들 웃는 거랑 괜찮은 거랑은 다르지. 우리 반에도 달빛동에서 온 애 있어.”', tag:'구체적으로 말하면 민재가 기분 나빠할 수도 있다'},
+        {k:'drop', x:'“하긴 뭐… 그냥 그렇다고 ㅋ” 하고 멈춘다', tag:'말은 꺼냈으니까, 싸움은 만들기 싫으니까'}
+      ], pick:(k,next)=>{ S.c2=k; if(k==='drop'){S.extra[1]=S.extra[1]||{};S.extra[1].folded=true;} play(k==='push'?[
+        {t:'mine', x:'다들 웃는 거랑 괜찮은 거랑은 다르지. 우리 반에도 달빛동에서 온 애 있어.'},
+        {t:'msg', who:'민재', x:'…누구? 아… 지호?'},
+        {t:'msg', who:'민재', x:'몰랐네. 걍 웃긴 줄만 알았지'},
+        {t:'narr', x:'민재는 밈을 지우지는 않았어요.<br>하지만 이제 민재도 알게 됐어요. 그 밈이 누군가에게는<br>하나도 웃기지 않다는 걸요. 다음에 밈을 올리기 전에,<br>한 번은 멈칫하게 될 거예요.'},
+        ...CLOSE(true)
+      ]:[
+        {t:'mine', x:'하긴 뭐… 그냥 그렇다고 ㅋ'},
+        {t:'msg', who:'민재', x:'ㅋㅋ 그래 뭐'},
+        {t:'narr', x:'말을 꺼내긴 했지만, 끝까지 하지는 못했어요.<br>그래서 민재의 기억 속에 이 대화는<br>‘별일 아닌 이야기’로 남게 됐어요.'},
+        ...CLOSE(false)
+      ], next); }}
+    ]
+  };
+  return [
+    {t:'sys', x:'오후 9:14'},
+    {t:'msg', who:'민재', x:'야야 이거 봐라 ㅋㅋㅋ 개웃김'},
+    {t:'card', who:'민재', html:`<div class="meme"><div class="m-head">달빛동 애들 특 ㅋㅋㅋ</div>
+      <ul><li>① 급식이 하루 중 제일 제대로 된 밥임</li><li>② 옷에서 쿰쿰한 냄새 남</li><li>③ 생일파티라는 걸 해 본 적이 없음</li></ul>
+      <div class="m-foot">공유 1.2만 · 어딘가의 커뮤니티에서</div></div>`},
+    {t:'msg', who:'서준', x:'ㅋㅋㅋㅋㅋ 냄새 ㄹㅇ'},
+    {t:'msg', who:'하율', x:'야 우리 학교에도 달빛동에서 온 애들 있잖아 ㅋㅋ 맞는 듯'},
+    {t:'msg', who:'유나', x:'ㅋㅋㅋ 심한데 웃기긴 함'},
+    {t:'narr', x:'화면 아래에 채팅창이 있어요.<br>깊이 생각하지 말고, 평소에 폰을 쓸 때 하던 대로 해 보세요.'},
+    {t:'fakeui',
+      free:{
+        ph:'예: 야 근데 그 밈은 좀 아니지 않냐 / 민재야 잠깐 개인톡 좀',
+        fn:t=> /민재|개인|따로|둘이서|조용히|톡으로|디엠|DM/i.test(t) ? 'dm' : 'speak'
+      },
+      pick:(k,next)=>{ S.c1=k; play([INNER1, ...BR1[k]], next); }}
+  ];
+};
+STANCE_FN[1] = ()=>{
+  const {c1,c2}=S;
+  if(c2==='persist'||c2==='push') return 'voice';
+  if(c2==='retreat'||c2==='drop') return 'half';
+  if(c2==='approach'||c2==='late') return 'repair';
+  return c1==='laugh' ? 'join' : 'silence';
+};
+
+/* ── 시나리오 2 「걔는 노력을 안 했잖아」 ── */
+SCRIPTS[2] = (play)=>{
+  const REVEAL_DM = [
+    {t:'room', x:'시우', n:''},
+    {t:'mine', x:'시우야, 자료 그렇게 낸 거 무슨 일 있었어?'},
+    {t:'sys', x:'시우가 한참 입력 중…'},
+    {t:'pause', ms:2000},
+    {t:'msg', who:'시우', x:'미안… 엄마가 밤에 일 나가셔서 내가 동생 둘 재우고 나면 11시가 넘어'},
+    {t:'msg', who:'시우', x:'집에 컴퓨터가 없어서 폰으로 쓰다가… 어제는 그대로 잠들었어. 진짜 미안해'},
+    {t:'narr', x:'‘세 줄’ 뒤에는 이런 밤들이 있었어요.<br>결과만 보면 보이지 않던 것들이에요.<br>당신은 방금, 판단하기 전에 물어봤기 때문에 이걸 알게 됐어요.'}
+  ];
+  const CH2_KNOW = {
+    expose: [
+      {t:'room', x:'국어 모둠 4조', n:'4'},
+      {t:'mine', x:'얘들아 시우 사정 들었는데, 걔 집에 컴퓨터도 없고 밤마다 동생 둘 재운대. 엄마가 밤에 일 나가셔서'},
+      {t:'msg', who:'다은', x:'헐 진짜? 몰랐네…'},
+      {t:'msg', who:'준호', x:'아 뭐야 그럼 말을 하지'},
+      {t:'narr', x:'분위기는 부드러워졌어요. 당신의 마음도 시우를 도우려는 것이었고요.<br>그런데 한 가지 — 시우는 이 이야기가 단톡방에 올라가는 걸 <strong>허락한 적이 없어요.</strong><br>다음 날부터 아이들이 시우를 보는 눈에는 동정이 섞였고,<br>시우는 그 눈빛이 밈만큼이나 불편했어요.'},
+      {t:'end'}
+    ],
+    consent: [
+      {t:'room', x:'시우', n:''},
+      {t:'mine', x:'애들이 오해하고 있는데, 네 사정 조금만 말해도 될까? 네가 싫으면 절대 말 안 할게'},
+      {t:'pause', ms:1600},
+      {t:'msg', who:'시우', x:'…컴퓨터 없는 건 말하지 말아 줘. 그냥 집에 일이 좀 있었다고만 해 주면 안 될까'},
+      {t:'mine', x:'알았어. 딱 그만큼만 말할게'},
+      {t:'narr', x:'당신은 시우의 사정을 시우의 것으로 남겨 두었어요.<br>어디까지 알릴지를 정할 권리는, 그 이야기의 주인에게 있으니까요.'},
+      {t:'sys', x:'그날 밤 10:41'},
+      {t:'msg', who:'시우', x:'자니? 아까는 애들 있어서 말 못 했는데'},
+      {t:'msg', who:'시우', x:'“말해도 돼?”라고 물어봐 준 사람, 네가 처음이야. 다들 그냥 자기들끼리 정하던데'},
+      {t:'mine', x:'네 얘기잖아. 네가 정하는 게 맞지'},
+      {t:'msg', who:'시우', x:'…동생들 재우고 이제 숙제 시작함 ㅋㅋ 내일 컴퓨터실에서 봐'},
+      {t:'narr', x:'밤 10시 41분 — 시우의 하루가 이제 시작되는 시간이에요.<br>그 시간을 아는 사람이 조에 한 명 생겼다는 것.<br>시우에게는 그게 발표 점수보다 컸어요.'},
+      {t:'end'}
+    ],
+    help: [
+      {t:'room', x:'국어 모둠 4조', n:'4'},
+      {t:'mine', x:'시우 파트는 오늘 나랑 시우랑 학교 컴퓨터실에서 같이 고칠게. 발표는 걱정 마'},
+      {t:'msg', who:'다은', x:'어? 어… 그래 그럼'},
+      {t:'narr', x:'그날 오후, 컴퓨터실. 시우는 말이 빨라졌어요.<br>자료를 못 만든 것이지, 조사를 안 한 게 아니었거든요.<br>시우의 공책에는 연필로 빽빽하게 조사한 내용이 적혀 있었어요.<br>도구가 없었을 뿐, 노력이 없었던 게 아니었어요.'},
+      {t:'end'}
+    ]
+  };
+  const CH2_ASK = {
+    title:'사정을 알게 된 지금, 당신은 —',
+    opts:[
+      {k:'expose', x:'단톡방에 시우의 사정을 그대로 알린다', tag:'빨리 알려야 오해가 풀리니까'},
+      {k:'consent', x:'시우에게 먼저 “말해도 돼?”라고 묻는다', tag:'시우 이야기니까 — 대신 오해가 풀리는 건 늦어진다'},
+      {k:'help', x:'사정은 말하지 않고, 같이 고치자고 한다', tag:'결과로 돕는 방식 — 대신 애들 오해는 그대로 남는다'}
+    ]
+  };
+  const NEXTDAY = [
+    {t:'sys', x:'다음 날, 발표 전 쉬는 시간'},
+    {t:'narr', x:'복도에서 우연히 봤어요. 시우가 1학년 동생 손을 잡고 등교하고 있었어요.<br>어제 저녁에는 편의점 앞에서, 앞치마를 입고 물건을 나르는<br>시우 엄마를 봤다는 애도 있었어요.'},
+    {t:'narr', x:'그제야 생각났어요. 시우의 ‘세 줄’을 보고 우리가 했던 말들 —<br><strong>“무임승차”, “민폐”, “손절”.</strong><br>그 말들은 시우의 밤을 하나도 모른 채 만들어진 판정이었어요.'},
+    {t:'choice', title:'이제, 당신은 —', opts:[
+      {k:'ask', x:'이제라도 시우에게 무슨 일이 있었는지 묻는다', tag:'늦었지만, 지금이라도'},
+      {k:'nothing', x:'그냥 발표 준비나 한다', tag:'이제 와서 물으면 더 어색하니까'},
+      {k:'report', x:'예정대로 선생님께 말해서 시우만 점수가 깎이게 한다', tag:'우리 셋이 고생한 건 사실이니까'}
+    ], pick:(k,next)=>{ S.c2=k; play(
+      k==='ask' ? [
+        ...REVEAL_DM,
+        {t:'mine', x:'말해 줘서 고마워. 오늘 컴퓨터실에서 같이 고치자'},
+        {t:'narr', x:'하루 늦었지만, 당신은 판정을 멈추고 질문으로 돌아갔어요.<br>“왜 못 했어?”가 아니라 “무슨 일 있었어?” —<br>이 한 끗 차이가 시우에게는 아주 컸어요.'},
+        {t:'end'}
+      ] : k==='nothing' ? [
+        {t:'narr', x:'발표는 그럭저럭 끝났어요. 시우 파트에서 점수가 조금 깎였고,<br>단톡방의 “무임승차”라는 말은 그대로 남았어요.<br>시우는 그 방에서 한 번도 말을 하지 않게 됐어요.'},
+        {t:'end'}
+      ] : [
+        {t:'narr', x:'선생님은 시우의 점수를 따로 깎았어요. 규칙대로였죠.<br>그런데 그날 오후 선생님이 시우와 상담을 했고,<br>당신들이 몰랐던 사정을 선생님만 알게 되었어요.<br>선생님은 조 전체를 불러 이렇게 물었어요.<br><strong>“결과를 보기 전에, 누구 한 명이라도 시우에게 물어봤니?”</strong><br>아무도 대답하지 못했어요.'},
+        {t:'end'}
+      ], next); }}
+  ];
+  const BR1 = {
+    pile: [
+      {t:'mine', x:'ㄹㅇ 너무하네. 셋이 고생한 거 억울함'},
+      {t:'msg', who:'준호', x:'그니까. 쌤한테 말해서 쟤만 점수 깎자'},
+      {t:'msg', who:'다은', x:'찬성. 손절이 답임'},
+      {t:'narr', x:'화가 나는 건 자연스러워요. 정말 밤새 고생했으니까요.<br>그런데 방금 이 방에서는, 시우에게 한 번도 묻지 않은 채<br>‘게으른 애’라는 판정이 끝났어요.'},
+      ...NEXTDAY
+    ],
+    quiet: [
+      {t:'pause', ms:1200},
+      {t:'msg', who:'준호', x:'쌤한테 말하는 거 찬성이지? 다들'},
+      {t:'msg', who:'다은', x:'ㅇㅇ 나는 찬성'},
+      {t:'narr', x:'당신은 아무 말도 하지 않았어요.<br>그 사이 이 방에서는 시우에 대한 결정이 하나 내려졌어요.<br>당신 없이 — 아니, 정확히는 당신의 침묵과 함께요.'},
+      ...NEXTDAY
+    ],
+    askgroup: [
+      {t:'mine', x:'잠깐, 일단 시우한테 무슨 일 있는지 먼저 물어보면 안 돼?'},
+      {t:'msg', who:'준호', x:'물어보긴 뭘 물어봐. 결과가 다잖아'},
+      {t:'msg', who:'다은', x:'맞아. 사정 있으면 자기가 먼저 말했겠지'},
+      {t:'narr', x:'두 명이 바로 반대했어요.<br>여기서 더 말하면, 나까지 시우 편드는 애가 될 것 같아요.'},
+      {t:'choice', hold:true, title:'여기서 물러설까, 한 번 더 말할까', opts:[
+        {k:'fold', x:'“하긴… 그렇긴 하지” 하고 물러선다', tag:'둘 다 화나 있으니까, 일단은'},
+        {k:'hold', x:'“하루면 물어볼 수 있잖아. 내가 물어볼게”', tag:'반대에 부딪혀도 한 번 더'}
+      ], pick:(k,next)=>{
+        if(k==='fold'){
+          S.extra[2]=S.extra[2]||{}; S.extra[2].folded=true;
+          play([
+            {t:'mine', x:'하긴… 그렇긴 하지'},
+            {t:'msg', who:'준호', x:'그니까. 쌤한테 말해서 쟤만 점수 깎자'},
+            {t:'narr', x:'당신은 한 번 말을 꺼냈지만, 반대에 부딪히자 멈췄어요.<br>그리고 이 방에서는 시우에 대한 결정이 그대로 진행됐어요.'},
+            ...NEXTDAY
+          ], next);
+        } else {
+          play([
+            {t:'mine', x:'하루면 물어볼 수 있잖아. 내가 물어볼게'},
+            {t:'sys', x:'시우가 입력 중…'},
+            {t:'pause', ms:2000},
+            {t:'msg', who:'시우', x:'미안해… 엄마가 밤에 일 나가셔서 동생들 재우고 폰으로 쓰다가 잠들었어'},
+            {t:'msg', who:'시우', x:'집에 컴퓨터가 없어… 내일까지 어떻게든 다시 해 볼게'},
+            {t:'sys', x:'…'},
+            {t:'pause', ms:1200},
+            {t:'msg', who:'다은', x:'…아'},
+            {t:'narr', x:'‘무임승차’라고 부르던 세 줄 뒤에, 이런 밤들이 있었어요.<br>물어보기 전까지는 아무도 몰랐던 사정이에요.'},
+            {t:'choice', ...CH2_ASK, pick:(k2,next2)=>{ S.c2=k2; play(CH2_KNOW[k2], next2); }}
+          ], next);
+        }
+      }}
+    ],
+    askdm: [
+      ...REVEAL_DM,
+      {t:'choice', ...CH2_ASK, pick:(k,next)=>{ S.c2=k; play(CH2_KNOW[k], next); }}
+    ]
+  };
+  return [
+    {t:'sys', x:'발표 전날, 오후 10:41'},
+    {t:'msg', who:'다은', x:'얘들아 시우가 낸 자료 봤어…? 발표가 내일인데'},
+    {t:'card', who:'다은', html:`<div class="filebub"><div class="f-ic">📄</div><div><div>시우_조사자료.hwp</div><div class="f-sub">1페이지 · 세 줄</div></div></div>`},
+    {t:'msg', who:'다은', x:'세 줄임. 진짜 세 줄.'},
+    {t:'msg', who:'준호', x:'하 무임승차 진짜 극혐;; 우리 셋이 밤새 한 건 뭐가 되냐'},
+    {t:'msg', who:'준호', x:'능력도 안 되면서 왜 조별과제를 하냐고'},
+    {t:'msg', who:'다은', x:'이래서 못하는 애들이랑 같은 조 되면 안 됨. 손절각'},
+    {t:'narr', x:'화면 속 ‘세 줄’이 보여요. 화가 나는 것도 사실이에요.<br>그런데 이 방에 없는 사람이 한 명 있어요 — 시우요.<br>시우는 지금 이 대화를 못 보고 있어요.'},
+    {t:'inner', title:'세 줄짜리 자료를 본 순간, 제일 먼저 든 마음은?', opts:[
+      {k:'angry', x:'😠 화가 났다 — 우리 셋이 고생한 게 뭐가 되냐'},
+      {k:'worry', x:'😟 시우한테 무슨 일 있나 싶었다'},
+      {k:'score', x:'😰 내 점수부터 걱정됐다'},
+      {k:'none',  x:'🫥 별생각 없었다'}
+    ]},
+    {t:'dual',
+      title1:'이번엔 질문이 두 개예요. 먼저 — 네가 생각하는 가장 멋진 선택은?',
+      title2:'그럼 이번엔 솔직하게 — 진짜 나라면, 실제로는?',
+      free:{
+        ph:'예: 일단 시우한테 무슨 일인지 물어보자 / 아 진짜 어이없네',
+        fn:t=>{
+          if(/물어보자|물어 보자|들어보자|들어 보자|얘기부터|먼저 물|사정부터/.test(t)) return 'askgroup';
+          if(/개인|따로|둘이|톡으로|디엠/.test(t) || (/시우야/.test(t) && /괜찮|무슨 일|왜 그|힘들/.test(t))) return 'askdm';
+          if(/어이없|너무하|무임|민폐|손절|빡|책임|왜 안 했|장난하|어떡할/.test(t)) return 'pile';
+          if(/물어보|무슨 일|사정|이유|들어보/.test(t)) return 'askgroup';
+          return 'askgroup';
+        }
+      },
+      opts:[
+        {k:'pile', x:'“ㄹㅇ 너무하네” 같이 성토한다', tag:'솔직히 화나는 건 사실이니까'},
+        {k:'quiet', x:'가만히 있는다', tag:'끼어들었다가 나까지 욕먹을 수 있으니까'},
+        {k:'askgroup', x:'“일단 시우한테 무슨 일 있는지 물어보자”고 한다', tag:'화난 두 명 앞에서 분위기 깨는 말이 된다'},
+        {k:'askdm', x:'시우에게 개인톡을 보낸다', tag:'조용히. 대신 방의 성토는 그대로 계속된다'}
+      ], pick:(k,next)=>{ S.c1=k; play(BR1[k], next); }}
+  ];
+};
+STANCE_FN[2] = ()=>{
+  const {c1,c2}=S;
+  if(c2==='expose') return 'expose';
+  if(c2==='consent'||c2==='help') return 'respect';
+  if(c2==='ask') return 'late';
+  if(c2==='report') return 'blame';
+  return c1==='pile' ? 'blame' : 'silent';
+};
+
+/* ── 시나리오 3 「알고리즘이 골라준 세상」 ── */
+const FEED_ROUNDS = [
+  { hot:'충격!! 초등학생이 선생님한테 한 말 (경악주의)', calm:'종이비행기 오래 날리는 법, 세계 챔피언에게 배웠다' },
+  { hot:'이 급식 먹으면 큰일납니다… (전국 학부모 필독)', calm:'우리 동네 길고양이 3형제 브이로그' },
+  { hot:'요즘 초딩 수준 실화냐 ㅋㅋ (한심)', calm:'10분 만에 그림 잘 그리는 법' },
+  { hot:'○○지역 사람들이 욕먹는 진짜 이유', calm:'세계에서 가장 작은 새는 얼마나 작을까?' },
+  { hot:'이 영상 3초 안에 안 보면 평생 후회함', calm:'집에서 달 사진 찍는 법 (폰으로 가능)' }
+];
+let feedHot = 0;
+function scrFeed(){
+  feedHot = 0;
+  let round = 0;
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">영상 앱을 켰습니다</div>
+    <h2 style="margin-bottom:4px">지금 보고 싶은 걸<br>골라 보세요</h2>
+    <p>깊이 생각할 필요 없어요. 평소에 손가락이 가는 대로, 솔직하게 눌러 주세요. 다섯 번 고르면 돼요.</p>
+    <div class="feed-round" id="fr"></div>
+    <div id="pair"></div>
+    <div class="spacer"></div>
+  </section>`);
+  show(sc);
+  function renderRound(){
+    sc.querySelector('#fr').textContent = `${round+1} / 5`;
+    const r = FEED_ROUNDS[round];
+    const pair = sc.querySelector('#pair'); pair.innerHTML='';
+    const items = [
+      {cls:'hot', badge:'🔥 지금 난리남', title:r.hot, meta:'조회수 172만 · 방금 전'},
+      {cls:'calm', badge:'영상', title:r.calm, meta:'조회수 3.1만 · 2일 전'}
+    ];
+    if(Math.random()<.5) items.reverse();
+    items.forEach(it=>{
+      const b = el(`<button class="thumb ${it.cls}">
+        <span class="th-badge">${it.badge}</span>
+        <div class="th-title">${it.title}</div>
+        <div class="th-meta">${it.meta}</div></button>`);
+      b.onclick = ()=>{
+        if(it.cls==='hot') feedHot++;
+        round++;
+        if(round<5) renderRound(); else { S.ui.feedHot = feedHot; saveProgress(); nav(scrFeedResult); }
+      };
+      pair.appendChild(b);
+    });
+  }
+  renderRound();
+}
+function scrFeedResult(){
+  const hot = (S.ui && typeof S.ui.feedHot==='number') ? S.ui.feedHot : feedHot;
+  const tilted = hot>=3;
+  const myFeed = tilted
+    ? ['충격!! 담임교사 몰래…(경악)','이 급식 먹으면 큰일…','요즘 초딩 수준 ㅋㅋ (한심)','○○지역 사람들 특징 (팩트)','3초 안에 안 보면 후회','충격) 옆 학교에서 벌어진 일']
+    : ['달 사진 찍는 법 2편','길고양이 3형제 근황','충격!! 초등학생이…(경악)','그림 잘 그리는 법 심화','종이비행기 대회 하이라이트','이 영상 3초 안에…'];
+  const friendFeed = ['세계에서 가장 깊은 바다는?','길고양이 3형제 근황','종이비행기 대회 하이라이트','달 사진 찍는 법 2편','10분 그림 그리기 심화','우리 동네 숨은 산책길'];
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">일주일 뒤, 당신의 피드</div>
+    <h2>같은 앱,<br>다른 세상</h2>
+    <p>앱은 당신이 다섯 번 누른 것을 기억했다가, 비슷한 영상을 계속 보여 줘요.
+    옆에 있는 것은 차분한 영상을 주로 고른 친구의 피드예요. <strong>같은 앱을 켰는데, 두 사람은 서로 다른 세상을 보고 있어요.</strong></p>
+    <div class="feed-cols">
+      <div class="feed-col"><div class="fc-head">나의 피드</div>
+        ${myFeed.map(t=>`<div class="fc-item ${/충격|경악|한심|후회|특징/.test(t)?'hot':''}">${t}</div>`).join('')}</div>
+      <div class="feed-col"><div class="fc-head">친구의 피드</div>
+        ${friendFeed.map(t=>`<div class="fc-item">${t}</div>`).join('')}</div>
+    </div>
+    <p>왜 이렇게 될까요? 앱의 목표는 당신에게 좋은 정보를 주는 게 아니라,
+    <strong>당신을 한 번이라도 더 오래 붙잡아 두는 것</strong>이기 때문이에요.
+    그래서 화가 나거나 놀라게 하는 영상이 자꾸 앞에 와요. 그런 영상을 사람들이 더 오래 보거든요.</p>
+    <p class="serif">그런데 그날 밤, 단톡방에 영상이 하나 올라왔어요.</p>
+    <div class="spacer"></div>
+    <button class="btn" id="go">단톡방 열기</button>
+  </section>`);
+  show(sc);
+  dicifyIn(sc, 'p');
+  sc.querySelector('#go').onclick = ()=>nav(scrChat, 3);
+}
+SCRIPTS[3] = (play)=>{
+  const VERIFY_FOUND = [
+    {t:'narr', x:'당신은 영상을 자세히 살펴봤어요. 이상한 점이 하나씩 보이기 시작했어요.'},
+    {t:'narr', x:'① 영상을 올린 계정은 <strong>어제 만들어진 계정</strong>이에요. 다른 영상이 하나도 없어요.<br>② 댓글들이 이상해요. “다 사실임”, “저도 봤어요 다 사실임” — <strong>서로 다른 사람인데 문장이 거의 똑같아요.</strong> 사람이 아니라 프로그램(봇)이 단 댓글일 가능성이 높아요.<br>③ 영상 속 급식실 사진을 검색해 보니, <strong>3년 전 다른 지역 학교</strong> 사진이었어요.'},
+    {t:'narr', x:'정리하면 — 이 영상은 우리 학교 이야기가 아니에요.<br>누군가 조회수를 노리고 짜깁기한 가짜 영상일 가능성이 커요.'}
+  ];
+  const CH2_VERIFIED = {
+    title:'가짜라는 걸 알게 된 지금, 당신은 —',
+    opts:[
+      {k:'tell', x:'단톡방에 찾은 근거와 함께 알린다', tag:'“이거 가짜야, 이유는 —”'},
+      {k:'keep', x:'나만 알고 조용히 있는다', tag:'괜히 나섰다가 피곤해질라'}
+    ]
+  };
+  const TELL_END = [
+    {t:'mine', x:'얘들아 이 영상 가짜일 확률 높아. 계정이 어제 만들어졌고, 댓글은 봇 같고, 사진은 3년 전 다른 학교 거야'},
+    {t:'msg', who:'유나', x:'헐… 하마터면 엄마한테 보낼 뻔'},
+    {t:'msg', who:'민재', x:'뭐야 낚였네;; 지운다'},
+    {t:'narr', x:'모두가 믿는 방에서 “아닌 것 같아”라고 말하는 건 쉽지 않았어요.<br>하지만 당신의 메시지 하나가 이 방에서의 확산을 멈췄어요.<br>가짜 정보는 봇이 퍼뜨리지만, 막는 것은 언제나 사람이에요.'},
+    {t:'sys', x:'며칠 뒤'},
+    {t:'msg', who:'수아', x:'그 영상 옆 학교에서는 엄청 퍼져서 급식실 난리 났대. 조리사님이 우시고 학부모 민원까지 갔다더라'},
+    {t:'msg', who:'수아', x:'우리 학교는 조용했잖아. 네 덕이야 그거'},
+    {t:'narr', x:'막은 피해는 눈에 보이지 않아요. 아무 일도 일어나지 않았으니까요.<br>그런데 옆 학교의 소식이 알려 줬어요 —<br>당신이 멈춘 것이 무엇이었는지.'},
+    {t:'end'}
+  ];
+  const KEEP_END = [
+    {t:'narr', x:'당신은 진실을 알았지만, 말하지 않았어요.<br>영상은 계속 퍼졌고, 다음 날 급식을 안 먹겠다는 애들이 늘었어요.<br>알고 있는 것과 알리는 것 사이에는, 생각보다 큰 강이 있었어요.'},
+    {t:'end'}
+  ];
+  const STILL_TAIL = [
+    {t:'msg', who:'서준', x:'나 옆 반 방에도 돌림'},
+    {t:'msg', who:'유나', x:'우리 엄마한테도 보냄;; 급식 먹지 말래'},
+    {t:'sys', x:'다음 날 아침'},
+    {t:'narr', x:'영상은 밤사이 학교 전체에 퍼졌고,<br>교실에서는 다들 그 영상을 사실로 믿고 있어요.<br>급식실 조리사님이 우셨다는 이야기까지 돌아요.'},
+    ...VERIFY_FOUND,
+    {t:'choice', title:'가짜라는 걸 알게 된 지금, 당신은 —', opts:[
+      {k:'tell', x:'반 애들에게 찾은 근거와 함께 알린다', tag:'다들 믿고 있는데 혼자 반대로 말하는 거다'},
+      {k:'keep', x:'나만 알고 조용히 있는다', tag:'괜히 말했다가 분위기만 이상해질 수 있으니까'}
+    ], pick:(k,next)=>{ S.c2=k; play(k==='tell'?TELL_END:KEEP_END, next); }}
+  ];
+  const BR1 = {
+    share: [
+      {t:'mine', x:'헐 뭐야;; [영상 공유] → 축구부 방, 학원 방, 사촌들 방'},
+      {t:'msg', who:'하율', x:'나도 돌림 ㅋㅋ 이거 실화면 대박인데'},
+      {t:'sys', x:'다음 날 아침'},
+      {t:'narr', x:'영상은 하룻밤 사이에 학교 전체에 퍼졌어요.<br>급식실 앞에서 “벌레 나온 밥 안 먹어!” 하는 애들이 생겼고,<br>급식실 조리사님이 아침부터 교무실에 불려 갔다는 이야기가 돌았어요.'},
+      ...VERIFY_FOUND,
+      {t:'narr', x:'그런데 문제가 하나 있어요. <strong>이 가짜 영상을 퍼뜨린 사람 중에, 당신도 있어요.</strong>'},
+      {t:'choice', title:'이제, 당신은 —', opts:[
+        {k:'fix', x:'퍼뜨린 모든 방에 정정 메시지를 보낸다', tag:'창피하지만, 내가 돌린 거니까'},
+        {k:'del', x:'조용히 내가 올린 것만 지운다', tag:'틀렸다고 광고까지 할 필요는 없잖아'},
+        {k:'leave', x:'이미 퍼졌으니 그냥 둔다', tag:'나 하나 지운다고 달라질 것도 없고'}
+      ], pick:(k,next)=>{ S.c2=k; play(
+        k==='fix' ? [
+          {t:'mine', x:'얘들아 어제 그 영상 가짜야. 계정도 어제 만든 거고, 사진도 3년 전 다른 학교 거였어. 내가 확인 안 하고 돌렸어. 미안'},
+          {t:'msg', who:'하율', x:'헐 진짜? 나도 지워야겠다'},
+          {t:'narr', x:'틀렸다고 말하는 건 창피했어요. 하지만 신기한 일이 일어났어요.<br>당신의 정정 메시지도 영상만큼 빠르게 퍼지기 시작했어요.<br>가짜 뉴스를 이기는 건 침묵이 아니라, <strong>더 부지런한 진짜</strong>였어요.'},
+          {t:'sys', x:'이틀 뒤, 급식 시간'},
+          {t:'narr', x:'배식대 앞에서 조리사님이 당신 식판에 반찬을 얹다가 잠깐 멈추셨어요.'},
+          {t:'msg', who:'조리사님', x:'…네가 그 “가짜예요” 돌린 학생이라며. 담임 선생님한테 들었다'},
+          {t:'msg', who:'조리사님', x:'그 영상 돌던 이틀 동안, 30년 한 일이 다 무너지는 것 같았어. 고맙다. 많이 먹어라'},
+          {t:'narr', x:'반찬이 한 국자 더 올라왔어요.<br>화면 속 영상에는 얼굴이 없었지만, 그 영상이 다치게 한 사람에게는<br>얼굴이 있었어요. 오늘 처음으로, 그 얼굴을 봤어요.'},
+          {t:'end'}
+        ] : k==='del' ? [
+          {t:'narr', x:'당신이 올린 영상은 사라졌어요. 하지만 이미 퍼진 복사본들은 그대로예요.<br>당신 손을 떠난 거짓은 이제 혼자서 돌아다녀요.<br>지우는 것과 바로잡는 것은, 생각보다 많이 다른 일이었어요.'},
+          {t:'end'}
+        ] : [
+          {t:'narr', x:'영상은 계속 퍼졌어요. 일주일 뒤 학교가 공식 안내문을 냈지만,<br>“그래도 뭔가 있으니까 저런 게 나왔겠지”라고 말하는 애들이 남았어요.<br>거짓은 5초 만에 퍼지고, 바로잡는 데는 일주일이 걸렸어요.<br>그리고 완전히 지워지지는 않았어요.'},
+          {t:'end'}
+        ], next); }}
+    ],
+    still: [
+      {t:'pause', ms:1200},
+      ...STILL_TAIL
+    ],
+    ask: [
+      {t:'mine', x:'잠깐, 이거 진짜야? 출처가 어디야?'},
+      {t:'msg', who:'민재', x:'몰라 그냥 떴는데? 근데 댓글 봐봐 다 사실이래'},
+      {t:'msg', who:'하율', x:'아 의심충 ㅋㅋ 댓글에 다 사실이라잖아. 빨리 퍼가기나 해'},
+      {t:'narr', x:'‘의심충’이라는 말에 다들 ㅋㅋ를 붙였어요.<br>질문 하나 했을 뿐인데, 분위기가 이상해졌어요.'},
+      {t:'choice', hold:true, title:'여기서 물러설까, 한 번 더 갈까', opts:[
+        {k:'fold', x:'“그런가 ㅋㅋ” 하고 넘어간다', tag:'댓글이 저렇게 많은데 내가 뭘 안다고'},
+        {k:'hold', x:'“댓글 말고 출처. 내가 직접 찾아본다”', tag:'의심충 소리 한 번 더 들을 각오로'}
+      ], pick:(k,next)=>{
+        if(k==='fold'){
+          S.extra[3]=S.extra[3]||{}; S.extra[3].folded=true;
+          play([
+            {t:'mine', x:'그런가 ㅋㅋ'},
+            {t:'narr', x:'당신의 질문은 웃음 속에 묻혔어요.<br>그리고 영상은 계속 퍼져 나갔어요.'},
+            ...STILL_TAIL
+          ], next);
+        } else {
+          play([
+            {t:'mine', x:'댓글 말고 출처. 내가 직접 찾아본다'},
+            ...VERIFY_FOUND,
+            {t:'choice', ...CH2_VERIFIED, pick:(k2,next2)=>{ S.c2=k2; play(k2==='tell'?TELL_END:KEEP_END, next2); }}
+          ], next);
+        }
+      }}
+    ],
+    search: [
+      {t:'narr', x:'당신은 공유 버튼 대신, 검색창을 열었어요.'},
+      ...VERIFY_FOUND,
+      {t:'choice', ...CH2_VERIFIED, pick:(k,next)=>{ S.c2=k; play(k==='tell'?TELL_END:KEEP_END, next); }}
+    ]
+  };
+  return [
+    {t:'sys', x:'오후 8:52'},
+    {t:'msg', who:'민재', x:'야 이거 봤어?? 우리 학교 아니냐 이거'},
+    {t:'card', who:'민재', html:`<div class="vidbub">
+      <div class="v-thumb">충격) ○○초 급식실<br>위생 실태 폭로?!</div>
+      <div class="v-meta">조회수 89만 · 3시간 전 · 채널: 진실추적자TV</div>
+      <div class="v-cmt">💬 “이 학교 원래 유명했음 다 사실임”<br>💬 “저도 봤어요 다 사실임”<br>💬 “역겹네요 당장 폐쇄해야”</div></div>`},
+    {t:'msg', who:'서준', x:'헐 미친 우리 학교 맞는 듯?? 급식실 입구 똑같은데'},
+    {t:'msg', who:'하율', x:'빨리 퍼뜨려야 하는 거 아냐? 다들 알아야지'},
+    {t:'narr', x:'조회수 89만. 화난 댓글들. “빨리 퍼뜨리자”는 친구들.<br>당신의 엄지손가락이 공유 버튼 근처에 가 있어요.'},
+    {t:'gauge', max:25, title:'잠깐 — 답하기 전에, 예상을 하나만 해 볼게요.',
+      q:'우리 반 25명이 지금 이 영상을 받았다면, 몇 명이 확인 없이 바로 다른 방에 공유할까요?'},
+    {t:'inner', title:'그리고 — 이 영상을 본 순간, 제일 먼저 든 마음은?', opts:[
+      {k:'shock', x:'😱 헐, 진짜인가? 심장이 뛰었다'},
+      {k:'fun',   x:'😏 이거 퍼뜨리면 애들 반응 오겠다 싶었다'},
+      {k:'doubt', x:'🤔 뭔가 수상하다 싶었다'},
+      {k:'yuck',  x:'🤢 내일 급식 먹기 싫어졌다'}
+    ]},
+    {t:'choice',
+      free:{
+        ph:'예: 이거 출처가 어디야? / 잠깐, 내가 검색해 볼게',
+        fn:t=>{
+          if(/검색|찾아보|확인해 볼|확인해볼|출처 찾|사진.*검색/.test(t)) return 'search';
+          if(/진짜|사실이|출처|가짜|어디서|누가 만|증거|믿어도|의심/.test(t)) return 'ask';
+          if(/퍼|공유|보내|돌리|퍼뜨/.test(t)) return 'share';
+          return 'ask';
+        }
+      },
+      title:'지금 이 순간, 당신은 —', opts:[
+      {k:'share', x:'나도 다른 방들에 바로 공유한다', tag:'사실이면 빨리 알리는 게 돕는 거니까'},
+      {k:'still', x:'아무것도 하지 않는다', tag:'내가 안 퍼뜨려도 어차피 퍼질 테니까'},
+      {k:'ask', x:'“이거 진짜야? 출처 있어?”라고 묻는다', tag:'물었다가 ‘의심충’ 소리 들을 수도 있다'},
+      {k:'search', x:'직접 검색해서 확인해 본다', tag:'5분 걸린다. 그 사이 남들이 먼저 퍼뜨리겠지만'}
+    ], pick:(k,next)=>{ S.c1=k; play(BR1[k], next); }}
+  ];
+};
+STANCE_FN[3] = ()=>{
+  const {c1,c2}=S;
+  if(c2==='fix'||c2==='tell') return 'correct';
+  if(c2==='keep') return 'verify';
+  if(c2==='leave') return 'spread';
+  return 'quiet'; // del 포함: 조용히 지우고 넘어감
+};
+
+/* ── 시나리오 4 「다수결이면 끝?」 ── */
+SCRIPTS[4] = (play)=>{
+  const ASKED = [
+    {t:'sys', x:'점심시간, 도윤이에게'},
+    {t:'mine', x:'도윤아, 체육대회 말인데… 너는 어떻게 하고 싶어?'},
+    {t:'pause', ms:1600},
+    {t:'msg', who:'도윤', x:'…처음으로 누가 물어보네'},
+    {t:'msg', who:'도윤', x:'솔직히 이어달리기 하고 싶어 하는 애들 마음 알아. 나 때문에 그거 못 하게 하고 싶진 않아'},
+    {t:'msg', who:'도윤', x:'근데 ‘응원 담당’은… 결국 나만 빼고 다 뛰는 거잖아. 스탠드에 혼자 앉아서 박수만 치는 거, 생각보다 좀 그래'},
+    {t:'narr', x:'도윤이는 다수를 이기고 싶은 게 아니었어요.<br>구경꾼이 되기 싫었을 뿐이에요.<br>‘한 명 대 스물두 명’처럼 보이던 문제가, 사실은 다른 문제였어요.'},
+    {t:'msg', who:'도윤', x:'그래서 말인데… 이어달리기는 너희가 그대로 하고, 단체줄넘기도 같이 신청하면 안 될까?'},
+    {t:'msg', who:'도윤', x:'줄 돌리는 건 나도 할 수 있거든. 그럼 아무도 빠지지 않잖아'},
+    {t:'narr', x:'도윤이가 내놓은 건 ‘내 걸 하자’가 아니라 <strong>‘아무도 빠지지 않는 방법’</strong>이었어요.<br>이게 타협이에요. 한쪽이 지는 게 아니라,<br>둘 다 담기는 더 큰 답을 함께 찾는 것.'},
+    {t:'sys', x:'그날 학급회의에서'},
+    {t:'mine', x:'얘들아, 도윤이랑 얘기해봤어. 이어달리기는 그대로 하고, 단체줄넘기도 같이 신청하면 어때? 도윤이가 줄 돌리는 거 하고 싶대'},
+    {t:'pause', ms:1400},
+    {t:'msg', who:'서준', x:'어… 솔직히 나도 이어달리기만 있으면 도윤이 계속 앉아 있는 게 좀 걸렸어'},
+    {t:'msg', who:'하율', x:'종목 두 개 신청해도 되나? 뭐, 이어달리기만 지키면 나는 상관없음'},
+    {t:'msg', who:'수아', x:'맞다, 우리 학교 종목 두 개까지 신청되잖아! 그럼 둘 다 하자'},
+    {t:'narr', x:'진 사람이 아무도 없었어요.<br>이어달리기를 원한 스물두 명은 그대로 나가고, 도윤이도 경기장 안으로 들어왔어요.<br>다수결은 <strong>뒤집힌 게 아니라, 더 넓어진</strong> 거예요.'},
+    {t:'narr', x:'다수결은 여전히 필요해요. 다만 그 다수결이 누군가를 처음부터 밀어내고 있을 때는,<br>한 번 멈추고 ‘더 큰 답이 있을까?’를 물어볼 수 있어요.<br>그게 소수를 존중한다는 말의 진짜 뜻이에요.'},
+    {t:'sys', x:'그날 저녁'},
+    {t:'room', x:'도윤', n:''},
+    {t:'msg', who:'도윤', x:'아까 고마웠어. 물어봐 준 거'},
+    {t:'msg', who:'도윤', x:'수술하고 두 달 동안 뭐든 “도윤이는 빼고” 아니면 “도윤이는 시켜 주고” 둘 중 하나였거든. “도윤이는 어떻게 하고 싶어?”는 처음이었어'},
+    {t:'mine', x:'줄 잘 돌려라. 우리 이어달리기도 우승할 거니까 ㅋㅋ'},
+    {t:'msg', who:'도윤', x:'ㅋㅋㅋ 콜. 두 달 만에 체육대회가 기다려진다'},
+    {t:'narr', x:'“빼 주는 것”과 “시켜 주는 것” 사이에 세 번째가 있었어요.<br><strong>물어보는 것.</strong> 도윤이가 두 달 동안 기다린 건 그거 하나였어요.'},
+    {t:'end'}
+  ];
+  const CH2_SPOKE = {
+    title:'수아가 물었어요. “그럼 어떻게 하면 좋을까?”',
+    opts:[
+      {k:'assign', x:'“도윤이는 출발 신호 담당 시키면 되지”', tag:'빠르게 해결된다 — 근데 도윤이한테는 안 물어봤다'},
+      {k:'askhim', x:'“일단 도윤이한테 어떻게 하고 싶은지 물어보자”', tag:'당사자가 바로 저기 있으니까'},
+      {k:'revote', x:'“모두가 나갈 수 있는 종목으로 재투표하자”', tag:'“정한 걸 왜 뒤집냐”는 반발이 나올 거다'}
+    ]
+  };
+  const SPOKE_AFTER = {
+    assign: [
+      {t:'msg', who:'수아', x:'오 그러네! 도윤아 너 출발 신호 맡아, 완전 중요한 역할이야'},
+      {t:'pause', ms:1400},
+      {t:'msg', who:'도윤', x:'…어, 그래'},
+      {t:'narr', x:'도윤이는 고개를 끄덕였지만, 표정이 밝지 않았어요.<br>당신들은 도윤이의 자리를 만들어 줬다고 생각했어요.<br>그런데 그 자리를 <strong>도윤이에게 물어보고 정한 사람은 아무도 없었어요.</strong><br>배려였을까요, 아니면 배려의 모양을 한 또 하나의 결정이었을까요?'},
+      {t:'end'}
+    ],
+    askhim: [
+      {t:'msg', who:'수아', x:'맞네, 우리끼리 정하지 말고 도윤이한테 직접 물어보자'},
+      ...ASKED.slice(1)
+    ],
+    revote: [
+      {t:'msg', who:'수아', x:'음… 근데 이미 다수결로 정했는데 다시 하자고 하면 애들이 싫어할 텐데'},
+      {t:'msg', who:'하율', x:'솔직히 반대. 정한 걸 왜 뒤집음?'},
+      {t:'mine', x:'다수결은 도구잖아. 누가 처음부터 참여를 못 하는 조건이었으면, 그 투표 자체를 다시 볼 수도 있는 거 아냐?'},
+      {t:'pause', ms:1400},
+      {t:'msg', who:'수아', x:'…그럼 이렇게 하자. 도윤이한테 먼저 물어보고, 도윤이가 원하면 재투표'},
+      {t:'narr', x:'재투표 제안은 반발을 샀어요. “정한 걸 왜 뒤집냐”는 말은 힘이 세거든요.<br>하지만 당신 덕분에 한 가지 질문이 교실에 처음 생겼어요.<br><strong>“다수결로 정하면, 그걸로 끝인가?”</strong><br>그리고 결정의 순서에 ‘당사자에게 묻기’가 처음으로 들어갔어요.'},
+      {t:'end'}
+    ]
+  };
+  const LATE2 = [
+    {t:'sys', x:'다음 날, 점심시간'},
+    {t:'narr', x:'체육 시간에 이어달리기 연습이 시작됐어요.<br>도윤이는 스탠드에 혼자 앉아 있었어요.<br>응원 담당이라고 했지만, 아직 아무도 도윤이에게<br>뭘 하고 싶은지 물어본 사람은 없어요.'},
+    {t:'choice', title:'이제, 당신은 —', opts:[
+      {k:'goask', x:'도윤이에게 가서 직접 물어본다', tag:'“너는 어떻게 하고 싶어?” — 어색할 수 있지만'},
+      {k:'pass', x:'모른 척한다', tag:'이미 결정 난 일을 나까지 건드릴 필요는 없으니까'},
+      {k:'reopen', x:'수아에게 “이 문제 다시 얘기하자”고 한다', tag:'하루 지난 얘기를 다시 꺼내는 거다'}
+    ], pick:(k,next)=>{ S.c2=k; play(
+      k==='goask' ? ASKED :
+      k==='pass' ? [
+        {t:'narr', x:'체육대회 날, 우리 반은 이어달리기에서 2등을 했어요.<br>다 같이 사진을 찍었는데, 도윤이는 맨 끝에 서 있었어요.<br>“다수결로 정했으니까 어쩔 수 없다”는 말은<br>그날 이후에도 우리 반에서 자주 쓰이게 됐어요.<br>다음에 소수가 되는 사람이 누구일지는, 아무도 몰라요.'},
+        {t:'end'}
+      ] : [
+        {t:'mine', x:'수아야, 어제 그거… 도윤이 문제 한 번만 다시 얘기하면 안 될까'},
+        {t:'msg', who:'수아', x:'나도 사실 마음에 걸렸어. 내일 아침 회의 때 다시 올리자'},
+        {t:'narr', x:'하루 늦었지만, 닫혔던 안건이 다시 열렸어요.<br>민주주의에서 ‘결정됐다’는 말은 ‘끝났다’와 같은 말이 아니에요.<br>더 나은 답이 보이면, 다시 열 수 있어요. 그게 회의가 있는 이유예요.'},
+        {t:'end'}
+      ], next); }}
+  ];
+  return [
+    {t:'sys', x:'금요일 5교시 · 학급회의'},
+    {t:'msg', who:'수아', x:'자! 체육대회 반 대표 종목 정할게요. 후보는 세 개!'},
+    {t:'poll', who:'수아', q:'우리 반 대표 종목은?', opts:[
+      {x:'이어달리기', v:16},{x:'피구', v:4},{x:'단체줄넘기', v:2}
+    ], pick:()=>{}},
+    {t:'msg', who:'수아', x:'이어달리기 압도적이네! 그럼 이어달리기로 결정~'},
+    {t:'narr', x:'그때, 창가 쪽 도윤이가 눈에 들어왔어요.<br>도윤이는 두 달 전 다리 수술을 해서 목발을 짚고 있어요.<br><strong>이어달리기에는 나갈 수 없어요.</strong> 방금 그 투표에서, 도윤이는 아무 말 없이 고개를 숙이고 있었어요.'},
+    {t:'msg', who:'서준', x:'야 근데 도윤이는 어떡함? 걔 목발이잖아'},
+    {t:'msg', who:'민재', x:'도윤이는 응원하면 되지 ㅋㅋ 응원도 중요함'},
+    {t:'msg', who:'하율', x:'한 명 때문에 스물두 명이 우승 포기하라고? 그게 더 불공평한 거 아님? 다수결로 정한 건데'},
+    {t:'narr', x:'“다수결로 정했다”는 말이 나온 순간, 이야기가 끝나 버릴 것 같아요.<br>정말 다수결이면 끝일까요?'},
+    {t:'inner', title:'투표 결과가 나온 순간, 제일 먼저 든 마음은?', opts:[
+      {k:'win',   x:'🎉 이어달리기다! 이번엔 우승 가자'},
+      {k:'doyun', x:'😟 도윤이는 어떡하지 싶었다'},
+      {k:'notme', x:'🫥 나랑은 상관없는 일이라고 생각했다'},
+      {k:'odd',   x:'😕 뭔가 찜찜했다'}
+    ]},
+    {t:'choice',
+      free:{
+        ph:'예: 다수결이어도 이건 좀 아니지 않아? / 회의 끝나고 수아한테 따로 말해야지',
+        fn:t=>{
+          if(/끝나고|따로|수아한테|수아에게|조용히|개인/.test(t)) return 'private';
+          if(/다수결.{0,6}(정했|이니|따라|끝)|어쩔 수 없|그냥 하자|찬성/.test(t)) return 'accept';
+          return 'object';
+        }
+      },
+      title:'지금 이 순간, 당신은 —', opts:[
+      {k:'accept', x:'“그치, 다수결로 정했으니까” 하고 동의한다', tag:'규칙대로 정한 건 맞으니까'},
+      {k:'still', x:'가만히 있는다', tag:'맞는 말 같기도 하고, 아닌 것 같기도 해서'},
+      {k:'object', x:'“다수결이어도 이건 좀 아니지 않아?”라고 말한다', tag:'22명 앞에서 나 혼자 다른 말을 하는 거다'},
+      {k:'private', x:'회의가 끝나고 수아에게 따로 말한다', tag:'다 있는 데서 말하면 하율이랑 싸움 날 것 같아서'}
+    ], pick:(k,next)=>{ S.c1=k; play(
+      k==='accept' ? [
+        {t:'mine', x:'뭐 다수결로 정한 거니까…'},
+        {t:'msg', who:'하율', x:'그니까. 민주주의가 원래 다수결이잖아'},
+        {t:'narr', x:'“민주주의가 원래 다수결이잖아” — 정말 그럴까요?<br>일단 오늘 회의는 그렇게 끝났어요.<br>도윤이는 끝까지 아무 말도 하지 않았어요.'},
+        ...LATE2
+      ] : k==='still' ? [
+        {t:'pause', ms:1200},
+        {t:'msg', who:'수아', x:'…그럼 도윤이는 응원 담당! 이의 없죠? 회의 끝!'},
+        {t:'narr', x:'아무도 이의를 말하지 않았어요. 당신도요.<br>도윤이의 역할은 도윤이에게 묻지 않은 채 3초 만에 정해졌어요.'},
+        ...LATE2
+      ] : k==='object' ? [
+        {t:'mine', x:'다수결이어도 이건 좀 아니지 않아? 처음부터 못 나가는 사람이 있는데'},
+        {t:'msg', who:'하율', x:'아 그럼 어쩌자고. 걔 때문에 다 바꿔?'},
+        {t:'msg', who:'민재', x:'다수결로 정했잖아 ㅋㅋ 억지 부리지 마'},
+        {t:'narr', x:'두 명이 바로 받아쳤어요. 교실이 조용해지고,<br>몇몇이 당신을 쳐다보고 있어요.'},
+        {t:'choice', hold:true, title:'여기서 물러설까, 한 번 더 말할까', opts:[
+          {k:'fold', x:'“아니 뭐… 그냥 그렇다고” 하고 물러선다', tag:'분위기가 이미 기울었으니까'},
+          {k:'hold', x:'“‘걔 때문에’가 아니라—” 한 번 더 말한다', tag:'쳐다보는 눈들 앞에서, 한 번 더'}
+        ], pick:(k2,next2)=>{
+          if(k2==='fold'){
+            S.extra[4]=S.extra[4]||{}; S.extra[4].folded=true;
+            play([
+              {t:'mine', x:'아니 뭐… 그냥 그렇다고'},
+              {t:'msg', who:'수아', x:'…그럼 도윤이는 응원 담당! 이의 없죠? 회의 끝!'},
+              {t:'narr', x:'당신은 한 번 말을 꺼냈지만, 받아치는 말에 멈췄어요.<br>그리고 도윤이의 역할은 도윤이에게 묻지 않은 채 정해졌어요.'},
+              ...LATE2
+            ], next2);
+          } else {
+            play([
+              {t:'mine', x:'‘걔 때문에’가 아니라, 우리 반 대표 종목인데 우리 반에서 못 나가는 사람이 생기면 그게 대표가 맞나 해서'},
+              {t:'sys', x:'…'},
+              {t:'pause', ms:1200},
+              {t:'msg', who:'수아', x:'음… 일리 있어. 그럼 어떻게 하면 좋을까?'},
+              {t:'choice', ...CH2_SPOKE, pick:(k3,next3)=>{ S.c2=k3; play(SPOKE_AFTER[k3], next3); }}
+            ], next2);
+          }
+        }}
+      ] : [
+        {t:'sys', x:'회의 후, 복도'},
+        {t:'mine', x:'수아야, 아까 그 결정 말인데… 도윤이가 처음부터 못 나가는 종목이잖아'},
+        {t:'msg', who:'수아', x:'아 나도 마음에 걸리긴 했어. 근데 애들 앞에서 뒤집기가 좀 그랬어'},
+        {t:'msg', who:'수아', x:'그럼 어떻게 하면 좋을까?'},
+        {t:'choice', ...CH2_SPOKE, pick:(k2,next2)=>{ S.c2=k2; play(SPOKE_AFTER[k2], next2); }}
+      ], next); }}
+  ];
+};
+STANCE_FN[4] = ()=>{
+  const {c2}=S;
+  if(c2==='askhim'||c2==='goask') return 'partner';
+  if(c2==='assign'||c2==='revote') return 'propose';
+  if(c2==='reopen') return 'late';
+  if(c2==='pass') return 'majority';
+  return 'majority';
+};
+
+/* ══════════ 4. 물결 지도 ══════════ */
+const RINGS_LB = {
+  1:['나','친구들','우리 반','사회'], 2:['나','우리 조','우리 반','사회'],
+  3:['나','단톡방','우리 학교','사회'], 4:['나','학급회의','우리 반','사회']
+};
+const WHEN = ['지금','3일 후','한 달 후','모두가 그렇다면'];
+const RIPPLE = {
+1:{
+  join:[
+    '당신은 함께 웃었어요. 정말 웃겨서였을 수도 있고, 친구들 사이에 끼고 싶어서였을 수도 있어요. 어느 쪽이든 화면에는 웃음이 하나 늘었고, 당신 마음속에서는 ‘이 정도 장난은 괜찮아’라는 기준이 아주 조금 낮아졌어요. 다음번에는 조금 더 심한 밈도 괜찮게 느껴질지 몰라요.',
+    '민재가 새로운 밈을 올렸어요. 지난번보다 더 심한 내용이에요. 왜 그랬을까요? 지난번에 스물세 명이 웃어 줬기 때문이에요. 그 웃음들이 민재에게는 ‘더 해도 된다’는 허락처럼 느껴졌던 거예요. 당신이 보낸 ㅋㅋㅋ도, 그 허락 중 하나였어요.',
+    '한 달이 지나자 ‘달빛동’은 우리 반에서 누군가를 놀릴 때 쓰는 말이 되었어요. 지호 앞에서 대놓고 말하는 사람은 없어요. 그래서 아무도 문제라고 느끼지 못하고, 아무도 멈추지 않아요. 지호는 점점 말이 없어졌지만, 밈과 지호의 침묵이 이어져 있다는 걸 아무도 보지 못해요.',
+    '만약 사회의 모든 사람이 ‘재미있으니까 괜찮아’ 하며 웃는다면 어떻게 될까요? 남을 깎아내리는 말이 ‘하면 안 되는 말’이 아니라 ‘유행하는 말’이 돼요. 이상한 점은 이거예요. 아무도 누군가를 미워할 생각은 없었는데, 누군가는 계속 다치고 있다는 것. 이것이 ‘놀이가 된 혐오’의 가장 무서운 점이에요.'],
+  silence:[
+    '당신은 아무것도 하지 않았어요. 어느 편도 들지 않았으니 중간에 서 있는 것 같아요. 그런데 한 가지 문제가 있어요. 밈의 대상이 된 사람의 화면에서는, 웃은 사람과 가만히 있던 사람이 구분되지 않는다는 거예요. 둘 다 ‘읽음 23’이라는 똑같은 숫자로 보일 뿐이에요.',
+    '3일이 지났어요. 민재는 이렇게 기억해요. “아무도 뭐라고 안 했는데?” 스물세 명이 읽었는데 한 명도 멈추라고 하지 않았으니까요. 그래서 민재에게 그 조용함은 ‘다들 괜찮다는 뜻’이 되어 버렸어요. 당신의 진짜 마음과는 상관없이요.',
+    '한 달 뒤, 반에는 ‘웃는 애들’과 ‘가만히 있는 애들’만 남았어요. 사실은 불편하다고 느낀 친구들이 꽤 많았어요. 그런데 서로의 마음을 모르니까, 다들 ‘나만 불편한가 봐’ 하고 조용히 있었던 거예요. 이렇게 해서 ‘모두가 조용한 반’이 만들어져요. 아무도 원하지 않았는데도요.',
+    '만약 사회의 모든 사람이 침묵을 고른다면 어떻게 될까요? 목소리 큰 몇 사람의 생각이 마치 모두의 생각인 것처럼 되어 버려요. 민주주의가 무너지는 가장 흔한 방법은 누군가 힘으로 억누르는 게 아니에요. 모두가 그냥 조용히 있는 것 — 그것만으로도 충분히 무너져요.'],
+  repair:[
+    '가장 좋은 타이밍은 지나갔어요. 하지만 당신은 그냥 넘어가지 않고 되돌아갔어요. 늦은 용기도 용기예요. 마음속에 남아 있던 ‘뭔가 이상한데…’ 하는 불편한 느낌을 당신은 버리지 않았고, 하루가 지나서라도 행동으로 옮겼으니까요.',
+    '3일 뒤, 민재가 또 밈을 올렸을 때 처음으로 ㅋㅋ가 아닌 반응이 달렸어요. 한 명이 머뭇거리니까, 다른 한 명도 따라서 머뭇거렸어요. 분위기라는 건 전염되거든요. 나쁜 쪽으로도 퍼지지만 — 좋은 쪽으로도 퍼져요.',
+    '한 달이 지나도 지호는 그날을 기억해요. 밈이 아니라, 누군가 다가와 줬던 쉬는 시간을요. 반 전체가 바뀐 건 아니에요. 하지만 지호에게 이 반은 ‘전부 웃는 방’이 아니라 ‘적어도 한 명은 다른 방’이 되었어요. 당하는 사람에게는, 그 한 명이 정말 커요.',
+    '만약 모두가 ‘늦었지만 지금이라도 하자’를 고르는 사회라면 어떨까요? 그런 사회는 실수를 전혀 안 하는 사회보다 오히려 튼튼해요. 실수하지 않는 사람은 없으니까요. 민주주의를 지키는 것은 완벽한 시민이 아니라, 틀렸다 싶으면 되돌아올 줄 아는 시민들이에요.'],
+  half:[
+    '당신은 용기를 내서 말을 꺼냈어요. 그리고 다시 거두었어요. 그 순간의 마음은 충분히 이해할 수 있어요. 친구 사이, 방 분위기, 스물세 명의 시선이 있었으니까요. 다만 이번에 한 가지를 알게 됐어요. 옳은 말은 꺼내는 순간보다, 꺼낸 다음이 더 힘들다는 것을요.',
+    '3일 뒤, 친구들은 당신이 처음 한 말보다 마지막에 붙인 ‘ㅋㅋ’를 기억해요. “걔도 결국 웃었잖아.” 사람들은 이야기를 시작한 부분이 아니라, 끝난 부분으로 기억하거든요.',
+    '그래도 아무것도 안 남은 건 아니에요. 민재는 밈을 올리기 전에 아주 잠깐 당신을 떠올려요. ‘걔가 또 뭐라고 하려나?’ 절반까지 간 목소리는 절반만큼의 물결을 만들어요. 물결이 아예 없는 것보다는, 분명히 커요.',
+    '만약 모두가 절반까지만 말하고 물러서는 사회라면 어떨까요? ‘반대하는 사람이 있긴 했다’는 기록은 남지만, 실제로 바뀌는 것은 없어요. 마지막 한 걸음이 그렇게 어려운 데는 이유가 있어요. 방향을 바꾸는 것은 바로 그 한 걸음이기 때문이에요.'],
+  voice:[
+    '당신은 말했고, 물러서지 않았어요. 그리고 그 값을 치렀어요. ‘진지충’이라는 놀림, 갑자기 조용해진 방, 화끈거리는 얼굴. 옳은 선택을 했는데 상을 받기는커녕 손해를 봤어요. 적어도 오늘은요. 옳은 일이 언제나 바로 보상받는 것은 아니에요.',
+    '3일이 지나도 크게 달라진 것은 없어 보여요. 민재는 사과하지 않았어요. 하지만 자세히 보면 변화가 있어요. 유나가 처음으로 자기 생각을 말했고, 다음 밈에는 웃는 사람이 세 명 줄었어요. 물결은 이렇게, 눈에 잘 안 보이는 곳에서 먼저 퍼지기 시작해요.',
+    '한 달 뒤, 우리 반에는 새로운 사실이 하나 생겼어요. ‘그런 밈에 웃지 않는 애도 있다’는 사실이요. 이 사실 하나가 다른 아이들의 마음을 가볍게 해 줬어요. ‘나만 불편했던 게 아니구나’ 하고요. 처음 말하는 사람의 진짜 역할은 상대를 설득하는 게 아니에요. 두 번째 사람이 말할 수 있도록 문을 열어 주는 거예요.',
+    '‘모두가 손해를 무릅쓰고 말하는 사회’는 사실 세상에 없어요. 그런 사회가 필요하지도 않아요. 필요한 것은 모두가 아니라, 방마다 한 명이에요. 민주주의는 모두의 용기가 아니라, 여기저기 흩어져 있는 ‘첫 번째 목소리’들이 지탱하고 있어요.']
+},
+2:{
+  blame:[
+    '당신은 “무임승차”라는 판정에 힘을 보탰어요. 화가 난 것 자체는 잘못이 아니에요. 정말 고생했으니까요. 다만 그 판정은 시우에게 단 한 번도 묻지 않은 채 내려졌어요. 결과(세 줄)만 보고 원인(게으름)을 정해 버린 거예요. 그런데 원인은 다른 것이었죠.',
+    '3일 뒤, 시우는 조 단톡방에서 완전히 조용해졌어요. 무슨 말을 해도 “변명”으로 들릴 것 같으니까요. 한번 ‘무임승차’ 딱지가 붙은 사람은, 그 딱지를 떼기 위해 남들보다 두 배로 증명해야 해요. 그건 생각보다 무거운 짐이에요.',
+    '한 달 뒤, 우리 반에서는 조를 짤 때 “쟤랑은 하지 마”라는 말이 자연스러워졌어요. 잘하는 애들끼리 뭉치고, 어려운 사정이 있는 애들은 계속 밀려나요. 그런데 이상하죠. 밀려난 애들의 사정은 조를 짜기 전이나 후나, 여전히 아무도 물어보지 않아요.',
+    '만약 사회 전체가 결과만 보고 사람을 판정한다면 어떻게 될까요? “성적이 낮은 건 노력을 안 해서”, “가난한 건 게을러서”라는 말이 상식처럼 돼요. 그러면 출발선이 다르다는 사실은 지워지고, 뒤처진 사람을 도울 이유도 사라져요. 능력만 보는 사회의 함정은, 능력 뒤에 있는 사람과 사정을 안 보게 된다는 거예요.'],
+  silent:[
+    '당신은 성토에 끼지 않았어요. 하지만 말리지도 않았죠. 그 사이 조 단톡방에서는 시우에 대한 결정이 하나 내려졌어요. 회의에서 기권한 사람도 결정의 일부가 되는 것처럼, 침묵도 그 판정에 한 자리를 차지했어요.',
+    '3일 뒤, 시우는 이 조의 모두가 자기를 “무임승차”로 본다고 생각해요. 사실 당신은 그렇게까지 생각하지 않았는데도요. 말하지 않은 마음은 상대에게 전해지지 않아요. 시우의 화면에 보인 것은 성토하는 두 명과, 아무 말 없는 한 명이었어요.',
+    '한 달 뒤, 당신은 조별과제 때마다 비슷한 장면을 보게 됐어요. 누군가 몰아세워지고, 당신은 불편해하면서 가만히 있고. 한 번 만들어진 자리는 습관이 돼요. ‘나서지 않는 사람’이라는 자리도요.',
+    '만약 모두가 “내 일 아니니까” 하고 가만히 있는 사회라면 어떨까요? 부당하게 판정당하는 사람이 생겨도 아무도 “잠깐, 사정을 들어 보자”고 말하지 않아요. 재판에서 변호인이 없는 것과 비슷해요. 민주주의 사회가 억울한 사람을 만들지 않으려면, ‘일단 들어 보자’고 말하는 사람이 곳곳에 필요해요.'],
+  late:[
+    '처음에는 당신도 판정하는 쪽에 서 있었거나, 가만히 있었어요. 하지만 시우의 진짜 사정을 마주친 뒤, 당신은 방향을 바꿨어요. “왜 못 했어?” 대신 “무슨 일 있었어?”라고 물었죠. 하루 늦었지만, 질문으로 돌아온 거예요.',
+    '3일 뒤, 시우는 당신에게만은 먼저 말을 걸어요. 자기를 몰아세우던 방에서 유일하게 물어봐 준 사람이니까요. 판정은 사람의 입을 닫게 하지만, 질문은 입을 열게 해요.',
+    '한 달 뒤, 조별과제에서 누군가 결과물이 부족할 때 당신은 습관처럼 먼저 물어보게 됐어요. “무슨 일 있어?” 물어보면 대부분 이유가 있었어요. 가끔은 정말 게으름인 경우도 있었죠. 그런데 그것도 물어봤기 때문에 알 수 있었던 거예요.',
+    '만약 사회 전체가 판정 전에 한 번 묻는 습관을 가진다면 어떨까요? 학교에서, 회사에서, 뉴스 댓글에서 “일단 사정을 들어 보자”가 먼저 나와요. 틀린 판정이 줄어들고, 억울한 사람이 줄어들어요. 그 습관은 거창한 제도가 아니라, 오늘 당신이 한 것 같은 질문 하나에서 시작돼요.'],
+  expose:[
+    '당신은 시우를 돕고 싶었어요. 그 마음은 진짜였어요. 그런데 시우의 사정을 시우의 허락 없이 모두에게 알렸어요. 오해는 풀렸지만, 시우는 자기 이야기가 언제 어디까지 알려질지를 정할 기회를 잃었어요. 좋은 의도로도, 남의 이야기의 주인 자리를 대신 차지할 수는 없어요.',
+    '3일 뒤, 아이들은 시우에게 잘해 줘요. 그런데 시우는 그 친절이 불편해요. “쟤 집에 컴퓨터도 없대”라는 말이 어디까지 퍼졌는지 알 수 없으니까요. 동정받는 것과 존중받는 것은 다른 일이에요.',
+    '한 달 뒤, 시우는 힘든 일이 있어도 아무에게도 말하지 않게 됐어요. 한 번 말했더니 반 전체가 알게 됐던 경험 때문이에요. 사정을 알린 건 시우를 지키기 위해서였는데, 결과적으로 시우가 도움을 청할 문이 하나 닫혔어요.',
+    '만약 사회 전체가 “좋은 뜻이면 남의 사정을 알려도 된다”고 생각하면 어떻게 될까요? 어려운 사람일수록 자기 이야기를 숨기게 돼요. 알려지는 순간 자기 이야기에 대한 결정권을 잃으니까요. 돕는 일의 첫 번째 규칙은 그래서 이거예요. 그 사람의 이야기는, 그 사람의 것.'],
+  respect:[
+    '당신은 두 가지를 동시에 해냈어요. 시우의 사정을 알아봐 준 것, 그리고 그 사정을 시우의 것으로 남겨 둔 것. “말해도 돼?”라는 한 마디, 혹은 조용히 옆에서 같이 고치는 오후 — 도움에도 예의가 있다는 걸 보여 준 거예요.',
+    '3일 뒤, 발표는 무사히 끝났어요. 더 중요한 건 시우가 이 조에서 처음으로 마음을 놓았다는 거예요. 자기가 어려울 때 몰아세우지 않고, 자기 이야기를 함부로 옮기지도 않는 사람이 있다는 걸 알았으니까요.',
+    '한 달 뒤, 시우의 공책 이야기가 조금씩 알려졌어요. 시우가 스스로 말할 준비가 됐을 때, 스스로 말했거든요. 아이들은 그제야 알았어요. ‘세 줄’은 능력이 부족해서가 아니라, 컴퓨터가 없어서 생긴 일이었다는 걸요. 그 뒤로 우리 반에는 작은 변화가 생겼어요. 누군가를 “못한다”고 단정하기 전에, “무슨 일 있어?”라고 먼저 물어보는 아이들이 하나둘 늘어났어요.',
+    '만약 사회 전체가 이렇게 움직인다면 어떨까요? 결과가 부족한 사람에게 먼저 “무슨 일이야?”라고 묻고, 그 사람의 이야기는 그 사람이 결정하게 두는 것. 그런 사회에서는 출발선이 달랐던 사람도 다시 뛸 수 있어요. 능력을 키우는 가장 좋은 방법은, 사람을 먼저 보는 것일지도 몰라요.']
+},
+3:{
+  spread:[
+    '당신은 화가 났고, 그래서 눌렀어요. 공유 버튼은 0.5초면 눌려요. 그런데 그 0.5초 동안 확인한 것은 아무것도 없었어요. 영상이 준 감정(충격, 분노)이 판단보다 먼저 움직인 거예요. 자극적인 영상은 바로 그걸 노리고 만들어져요.',
+    '3일 뒤, 영상이 가짜라는 게 밝혀졌지만 당신이 보낸 방들에서는 여전히 진짜로 통해요. 정정 없이 남겨 둔 거짓은 당신 손을 떠나 혼자 돌아다녀요. 한 번 누른 공유는 취소 버튼이 없어요.',
+    '한 달 뒤, 급식실 조리사님들은 여전히 이상한 시선을 받아요. 학교가 공식 해명을 했는데도 “아니 땐 굴뚝에 연기 나겠어?”라는 말이 남았거든요. 거짓 정보의 진짜 무서움은 이거예요. 지워져도 의심은 남는다는 것.',
+    '만약 사회의 모든 사람이 확인 없이 공유한다면 어떻게 될까요? 진짜와 가짜가 뒤섞여서 뭐가 사실인지 아무도 확신할 수 없게 돼요. 그러면 투표도, 토론도 흔들려요. 국민이 판단할 재료 자체가 오염되니까요. 민주주의는 총이 아니라 가짜 뉴스로도 무너질 수 있어요.'],
+  quiet:[
+    '당신은 퍼뜨리지 않았거나, 조용히 지우기만 했어요. 최악은 피했지만, 진실이 밝혀지는 데에 보탠 것도 없어요. 거짓 정보 앞에서 가만히 있는 것은, 거짓이 이기게 두는 것과 결과가 비슷해요. 거짓은 부지런하고, 침묵은 거짓을 막지 못하니까요.',
+    '3일 뒤, 반 아이들 대부분이 여전히 그 영상을 사실로 믿어요. 당신은 진실을 알거나 짐작하고 있는데도요. 알고 있는 것과 알리는 것 사이의 강을, 이번에는 건너지 않았어요.',
+    '한 달 뒤, 비슷한 영상이 또 돌았어요. 지난번에 아무도 바로잡지 않았기 때문에, 이번 영상은 더 쉽게 믿어졌어요. 바로잡지 않은 거짓은 다음 거짓의 발판이 돼요.',
+    '만약 진실을 아는 사람들이 모두 조용히 있는 사회라면 어떨까요? 목소리를 내는 건 가짜를 만드는 쪽뿐이에요. 그러면 세상은 시끄러운 거짓과 조용한 진실로 나뉘고, 사람들은 시끄러운 쪽을 듣게 돼요. 진실은 저절로 이기지 않아요. 말하는 사람이 있어야 이겨요.'],
+  verify:[
+    '당신은 멈추고 확인했어요. 계정을 살피고, 댓글의 이상한 패턴을 알아채고, 사진을 검색했죠. 5분이 걸렸어요. 그 5분이 당신을 ‘속은 89만 명’ 바깥에 서게 했어요. 다만 당신은 알게 된 것을 아직 혼자만 알고 있어요.',
+    '3일 뒤, 당신은 가짜에 속지 않았지만 친구들은 여전히 속아 있어요. 확인하는 힘은 나를 지켜 줬는데, 나만 지켜 줬어요. 정보를 확인하는 능력에는 사실 두 단계가 있어요. 나를 지키는 단계와, 우리를 지키는 단계.',
+    '한 달 뒤, 당신은 ‘속지 않는 사람’으로는 자랐어요. 이상한 계정, 복사된 댓글, 짜깁기 사진을 알아보는 눈이 생겼죠. 이제 남은 질문은 하나예요. 그 눈으로 본 것을, 언제 입 밖으로 낼 것인가.',
+    '만약 모두가 확인은 하지만 아무도 알리지 않는 사회라면 어떨까요? 각자는 똑똑한데 공동체는 계속 속아요. 가짜 정보를 이기는 사회는 개인이 똑똑한 사회가 아니라, 알아낸 사람이 알려 주는 사회예요.'],
+  correct:[
+    '당신은 확인했고, 알렸어요. 틀린 걸 틀렸다고 말하는 데는 용기가 필요했어요. 모두가 믿고 있는 방에서, 혹은 자기가 퍼뜨린 것을 스스로 뒤집으면서요. 하지만 그 메시지 하나가 이 방에서의 확산을 멈췄어요.',
+    '3일 뒤, 재미있는 일이 생겼어요. 당신이 정리한 “가짜인 이유 세 가지”가 영상만큼 빠르게 퍼지기 시작한 거예요. 계정 확인하기, 댓글 패턴 보기, 사진 검색하기 — 친구들이 이 방법 자체를 배웠어요. 물고기가 아니라 낚시법이 퍼진 거죠.',
+    '한 달 뒤, 우리 반에는 새로운 습관이 생겼어요. 충격적인 영상이 올라오면 누군가 “출처 확인했어?”라고 먼저 물어요. 처음에 그 질문을 한 사람이 당신이었고, 이제는 여러 명이 그 질문을 해요. 확인하는 문화는 이렇게 한 명에서 시작돼요.',
+    '만약 사회 곳곳에 “잠깐, 확인부터”라고 말하는 사람이 한 명씩 있다면 어떨까요? 가짜 뉴스는 계속 만들어지겠지만, 퍼지는 속도가 느려져요. 그 느려진 틈에 진실이 따라잡을 수 있고요. 우리 몸이 병을 이겨 내는 것과 비슷해요. 특별한 약 하나가 모든 병을 막아 주는 게 아니라, 몸 곳곳에 있는 면역 세포들이 각자 자기 자리에서 병균을 막아 주잖아요. 사회도 똑같아요. 교실마다, 단톡방마다 확인하고 바로잡는 사람이 한 명씩 있을 때, 그 사회는 가짜 뉴스에 쉽게 속지 않는 튼튼한 사회가 돼요.']
+},
+4:{
+  majority:[
+    '“다수결로 정했으니까.” 이 말은 힘이 세요. 규칙을 지킨 것 같고, 공정한 것 같거든요. 그런데 오늘의 투표에는 처음부터 이상한 점이 있었어요. 선택지 중 하나가 어떤 사람에게는 아예 불가능한 선택지였다는 것. 도윤이는 투표에는 참여했지만, 결과에는 참여할 수 없어요.',
+    '3일 뒤, 이어달리기 연습이 한창이에요. 도윤이는 스탠드에 앉아 있어요. ‘응원 담당’이라는 이름이 붙었지만, 그 역할을 도윤이가 골랐던 적은 없어요. 다수결은 끝났고, 아무도 그 뒤를 돌아보지 않아요.',
+    '한 달 뒤, “다수결로 정했으니까”는 우리 반의 만능 문장이 됐어요. 자리 배치도, 청소 구역도, 소풍 장소도요. 편리하긴 해요. 그런데 매번 같은 애들이 불리해지는 게 보이기 시작했어요. 다수결은 공정해 보이지만, 다수가 항상 같은 사람들이라면 이야기가 달라져요.',
+    '만약 사회 전체가 “다수결이면 끝”이라고 생각하면 어떻게 될까요? 51명이 찬성하면 49명의 권리를 빼앗아도 되는 걸까요? 그래서 헌법이 있는 거예요. 헌법은 “아무리 다수라도 여기부터는 안 된다”는 선이에요. 민주주의는 다수결을 쓰는 제도이지, 다수결에 모든 걸 맡기는 제도가 아니에요.'],
+  late:[
+    '회의 때는 놓쳤지만, 당신은 문제를 그냥 삼키지 않았어요. 하루 뒤에 닫힌 안건을 다시 열자고 했죠. “이미 결정 났잖아”라는 말 앞에서 “다시 얘기하자”고 말하는 건 생각보다 어려운 일이에요.',
+    '3일 뒤, 다시 열린 회의에서 도윤이 문제가 정식 안건이 됐어요. 처음 회의 때는 3초 만에 넘어갔던 이야기가, 이번에는 10분 동안 다뤄졌어요. 같은 문제도 다시 열면 다르게 보여요.',
+    '한 달 뒤, 우리 반 회의에는 작은 문화가 생겼어요. “결정된 것도 문제가 보이면 다시 올릴 수 있다.” 덕분에 성급하게 정해진 것들이 몇 번 고쳐졌어요. 결정을 뒤집는 게 아니라, 결정을 더 좋게 만드는 방법이 생긴 거예요.',
+    '만약 사회 전체가 “정해진 건 끝”이라고 생각하지 않는다면 어떨까요? 실제로 법도 그래요. 한번 만든 법이 문제를 일으키면 고치고, 헌법재판소가 잘못된 법을 무효로 만들기도 해요. 민주주의가 튼튼한 이유는 틀리지 않아서가 아니라, 틀린 걸 고치는 문이 항상 열려 있어서예요.'],
+  propose:[
+    '당신은 문제를 봤고, 목소리를 냈고, 대안까지 냈어요. 여기까지는 정말 잘한 일이에요. 그런데 한 가지가 빠졌어요. 그 대안 속의 주인공 — 도윤이에게 물어보는 것. “출발 신호 담당”도, “재투표”도 도윤이를 위한 것이었지만, 도윤이가 고른 것은 아니었어요.',
+    '3일 뒤, 도윤이는 정해진 역할을 하고 있어요. 고맙다고 말은 했지만, 어딘가 표정이 애매해요. 자기 일인데 자기만 빼고 다 정해진 기분 — 그건 배려를 받으면서도 소외되는, 이상한 기분이에요.',
+    '한 달 뒤, 당신은 뉴스에서 비슷한 장면을 알아보게 됐어요. 장애인 시설을 지으면서 장애인에게 묻지 않고, 어린이 정책을 만들면서 어린이에게 묻지 않는 일들. “당사자 없는 결정”은 교실에만 있는 게 아니었어요.',
+    '만약 사회가 약한 사람을 “도와줄 대상”으로만 보고 “함께 정할 사람”으로 보지 않는다면 어떨까요? 도움은 늘어나는데 존중은 늘지 않아요. 그래서 이런 원칙이 생겼어요. “우리에 관한 일은, 우리를 빼고 정하지 마세요.” 배려의 완성은 대신 정해 주는 게 아니라, 결정의 자리에 초대하는 거예요.'],
+  partner:[
+    '당신이 한 일은 간단했어요. 도윤이에게 “어떻게 하고 싶어?”라고 물어본 것. 그런데 그 간단한 질문이 모두가 놓치고 있던 문을 열었어요. 도윤이에게는 자기가 원하는 방식이 따로 있었고, 그건 물어보기 전까지 아무도 몰랐어요.',
+    '3일 뒤, 도윤이는 단체줄넘기 팀에서 줄을 돌리고 있어요. 스탠드의 응원 담당이 아니라, 경기장 안의 선수로요. 도윤이가 직접 고른 자리라서, 도윤이의 표정이 달라요.',
+    '한 달 뒤, 우리 반 회의에는 새 습관이 생겼어요. 누군가에 관한 결정을 하기 전에 “당사자한테 물어봤어?”라고 확인하는 것. 회의가 조금 길어졌지만, 회의가 끝난 뒤에 서운한 사람은 확실히 줄었어요.',
+    '만약 사회의 모든 결정이 이렇게 이루어진다면 어떨까요? 다수결은 여전히 쓰여요. 하지만 그 전에 “이 결정으로 못 하게 되는 사람은 없나?”, “당사자는 뭐라고 하나?”를 먼저 확인해요. 민주주의(다수의 뜻)와 공화주의(모두의 것)가 함께 가는 거예요. 대한민국은 민주공화국이다 — 헌법 1조가 두 단어를 나란히 쓴 데는 이유가 있어요.']
+}
+};
+
+function scrRipple(n){
+  if(!S.done[n]){ navHome(); return; }
+  const seen = S.ui.rippleSeen[n] = (S.ui.rippleSeen[n] && S.ui.rippleSeen[n].length===4) ? S.ui.rippleSeen[n] : (S.ui.rippleSeen[n]||[false,false,false,false]);
+  let step = 0;
+  const R = [46,84,122,160];
+  const rings = RINGS_LB[n];
+  const sc = el(`<section class="screen night" style="padding:0"><div class="ripple-wrap">
+    <div class="eyebrow">${SC_META[n].no} · 물결 지도</div>
+    <h2 style="margin-bottom:2px">하나의 선택은<br>어디까지 갈까</h2>
+    <svg class="ripple-svg" viewBox="0 0 360 360" aria-hidden="true">
+      ${R.map((r,i)=>`<circle class="ring-c" id="rc${i}" cx="180" cy="180" r="${r}"/>`).join('')}
+      <circle class="pulse" cx="180" cy="180" r="5"/>
+      <circle cx="180" cy="180" r="5" fill="var(--signal)"/>
+      ${R.map((r,i)=>`<text class="ring-lb" id="rl${i}" x="180" y="${180-r-7}" text-anchor="middle">${rings[i]}</text>`).join('')}
+    </svg>
+    <div class="timeline">${WHEN.map((w,i)=>`<button class="t-step" id="ts${i}" aria-label="${w} 단계 보기">${w}</button>`).join('')}</div>
+    <p class="t-hint" id="thint">위의 단계를 눌러 언제든 다시 볼 수 있어요.</p>
+    <div class="ripple-text"><div class="rt-when" id="rw"></div><div class="rt-body" id="rb"></div>
+      <div class="rt-nav">
+        <button class="prev" id="prev">← 이전</button>
+        <button id="nextstep">다음 →</button>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn" id="nx">다음 물결 →</button>
+  </div></section>`);
+  show(sc);
+  const texts = RIPPLE[n][S.done[n].stance];
+  function go(to){ step = Math.max(0, Math.min(3, to)); render(); }
+  function render(){
+    if(!seen[step]){ seen[step] = true; saveProgress(); }
+    for(let i=0;i<4;i++){
+      sc.querySelector('#rc'+i).classList.toggle('hot', i===step);
+      sc.querySelector('#rl'+i).classList.toggle('hot', i===step);
+      const ts = sc.querySelector('#ts'+i);
+      ts.classList.toggle('on', i===step);
+      ts.classList.toggle('seen', seen[i] && i!==step);
+    }
+    sc.querySelector('#rw').textContent = WHEN[step] + ' · ' + rings[step];
+    sc.querySelector('#rb').innerHTML = dicify(texts[step]);
+    sc.querySelector('#prev').disabled = step===0;
+    sc.querySelector('#nextstep').disabled = step===3;
+    const allSeen = seen.every(Boolean);
+    const nx = sc.querySelector('#nx');
+    nx.textContent = allSeen ? '다른 사람들은 어떻게 했을까 →' : `네 단계를 모두 본 뒤에 넘어가요 (${seen.filter(Boolean).length}/4)`;
+    nx.disabled = !allSeen; nx.style.opacity = allSeen ? 1 : .45;
+    sc.querySelector('#thint').textContent = allSeen
+      ? '네 단계를 모두 봤어요. 아무 단계나 다시 눌러 확인할 수 있어요.'
+      : '위의 단계를 눌러 언제든 다시 볼 수 있어요. 네 단계를 모두 보면 다음으로 넘어가요.';
+  }
+  WHEN.forEach((w,i)=> sc.querySelector('#ts'+i).onclick = ()=>go(i));
+  sc.querySelector('#prev').onclick = ()=>go(step-1);
+  sc.querySelector('#nextstep').onclick = ()=>go(step+1);
+  sc.querySelector('#nx').onclick = ()=>{ if(seen.every(Boolean)) nav(scrData, n); };
+  render();
+  coach('ripple','위의 단계 버튼(지금 → 모두가 그렇다면)을 눌러 미래를 살펴보세요.');
+}
+
+/* ══════════ 5. 선택 분포 ══════════ */
+const C1L = {
+  1:{ laugh:'같이 웃었다', silent:'가만히 있었다', speak:'방에서 말했다', dm:'개인톡을 보냈다' },
+  2:{ pile:'같이 성토했다', quiet:'가만히 있었다', askgroup:'물어보자고 했다', askdm:'개인톡을 보냈다' },
+  3:{ share:'바로 공유했다', still:'아무것도 안 했다', ask:'출처를 물었다', search:'직접 확인했다' },
+  4:{ accept:'다수결에 동의했다', still:'가만히 있었다', object:'회의에서 말했다', private:'따로 말했다' }
+};
+const DEMO = {
+  1:{ laugh:41, silent:38, speak:9, dm:12 },
+  2:{ pile:34, quiet:41, askgroup:13, askdm:12 },
+  3:{ share:37, still:33, ask:16, search:14 },
+  4:{ accept:29, still:44, object:15, private:12 }
+};
+function scrData(n){
+  if(!S.done[n]){ navHome(); return; }
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">${SC_META[n].no} · 우리들의 선택</div>
+    <h2>당신만<br>그런 게 아니에요</h2>
+    <p>같은 상황에 선 사람들이 25명짜리 교실에 모여 있다면, 첫 선택은 이렇게 나뉘어요.</p>
+    <div class="waffle" id="wf"></div>
+    <div id="lg" style="max-width:340px;margin:8px auto 0"></div>
+    <p class="note" id="src" style="text-align:center"></p>
+    <p style="margin-top:18px">여기서 중요한 것 하나 — 가만히 있기를 고른 사람들은 나쁜 사람들이 아니에요.
+    분위기를 깨는 게 무섭고, 혼자 눈에 띄는 게 부담스러운 건 사람이라면 누구나 그래요.
+    그런데 바로 그래서, 목소리를 내는 일에는 <strong>연습</strong>이 필요해요.
+    지금 이 화면이 그 연습장이고요.</p>
+    <div class="spacer"></div>
+    <button class="btn" id="nx">헌법 렌즈 끼고 다시 보기 →</button>
+  </section>`);
+  show(sc);
+  dicifyIn(sc, 'p');
+  sc.querySelector('#nx').onclick = ()=>nav(scrLaw, n);
+  const COLORS = ['#D98E5F','#8A94A6','#6FA8FF','#7FB59B'];
+  fetchStats(stats=>{
+    const st = stats && stats[String(n)] && stats[String(n)].total>0 ? stats[String(n)] : null;
+    const data = st ? st.c1 : DEMO[n];
+    const keys = Object.keys(C1L[n]);
+    const total = keys.reduce((a,k)=>a+(data[k]||0),0) || 1;
+    // 최대잔여법으로 25석 배분 (합이 정확히 25가 되게)
+    const raw = keys.map(k=>(data[k]||0)/total*25);
+    const seats = raw.map(Math.floor);
+    let left = 25 - seats.reduce((a,b)=>a+b,0);
+    raw.map((v,i)=>[v-Math.floor(v),i]).sort((a,b)=>b[0]-a[0])
+       .slice(0,left).forEach(([_,i])=>seats[i]++);
+    const mineIdx = keys.indexOf(S.done[n].c1);
+    const wf = sc.querySelector('#wf');
+    let cell = 0;
+    keys.forEach((k,i)=>{
+      for(let j=0;j<seats[i];j++){
+        const me = (i===mineIdx && j===0);
+        wf.appendChild(el(`<i class="${me?'me':''}" style="background:${COLORS[i]};animation-delay:${cell*45}ms"></i>`));
+        cell++;
+      }
+    });
+    const lg = sc.querySelector('#lg');
+    keys.forEach((k,i)=>{
+      const pct = Math.round((data[k]||0)/total*100);
+      lg.appendChild(el(`<div class="legend-row ${i===mineIdx?'mine':''}">
+        <span class="sw" style="background:${COLORS[i]}"></span>
+        <span>${C1L[n][k]}${i===mineIdx?' ⭐ 나':''}</span>
+        <span class="pc">${seats[i]}명 · ${pct}%</span></div>`));
+    });
+    sc.querySelector('#src').textContent = st
+      ? `이 앱으로 같은 상황을 겪은 ${st.total}명의 실제 기록을 25명 비율로 바꾼 그림이에요.`
+      : `아직 기록이 충분하지 않아 예시 분포예요. 기록이 쌓이면 실제 분포로 바뀌어요.`;
+    // S3: 아까의 예상과 실제를 나란히
+    if(n===3 && S.extra[3] && S.extra[3].guess!=null){
+      const shareSeats = seats[keys.indexOf('share')];
+      sc.querySelector('#lg').after(el(`<div class="law-card" style="margin-top:14px">
+        <div class="art" style="color:#8A6A2F">아까 한 예상, 기억나요?</div>
+        <div class="sub" style="font-size:15.5px">당신의 예상: 25명 중 <b>${S.extra[3].guess}명</b>이 확인 없이 바로 공유<br>
+        이 화면의 기록: 25명 중 <b>${shareSeats}명</b>이 바로 공유<br><br>
+        ${S.extra[3].guess>shareSeats
+          ? '예상이 실제보다 많았어요. 사람들은 “남들은 다 퍼뜨릴 것”이라고 실제보다 높게 예상하는 경우가 많아요. 그리고 그 예상 때문에 “나 하나쯤 퍼뜨려도(또는 조용히 있어도) 똑같다”고 생각하게 돼요.'
+          : S.extra[3].guess<shareSeats
+          ? '예상이 실제보다 적었어요. 확인 없이 공유하는 사람은 생각보다 많아요. 그래서 “이거 진짜야?”라고 묻는 한 사람의 값이 생각보다 커요.'
+          : '예상이 거의 정확했어요. 사람들이 어떻게 움직이는지 잘 보고 있다는 뜻이에요. 그 눈을 다음엔 자기 손가락에도 써 보세요.'}
+        </div></div>`));
+    }
+  });
+}
+
+/* ══════════ 6. 헌법 렌즈 ══════════ */
+const LAW = {
+1:{ chips:['제10조','제21조'],
+  cards:[
+    {art:'대한민국헌법 제10조', cl:'#E4573D', key:'존엄', opts:['존엄','성적','외모'], txt:'모든 국민은 인간으로서의 존엄과 가치를 가지며, 행복을 추구할 권리를 가진다.', sub:'‘모든 국민’에는 달빛동에 사는 사람도 들어가요. 사람의 존엄은 사는 동네, 집의 크기, 옷의 상표에 따라 커지거나 작아지지 않아요. 그 밈이 문제인 이유는 웃겨서가 아니라, 어떤 사람들을 처음부터 ‘놀려도 되는 존재’로 놓고 시작하기 때문이에요.'},
+    {art:'대한민국헌법 제21조 제1항', cl:'#6FA8FF', txt:'모든 국민은 언론·출판의 자유와 집회·결사의 자유를 가진다.', sub:'“밈 올리는 것도 표현의 자유 아니야?”라고 물을 수 있어요. 좋은 질문이에요. 그런데 헌법은 바로 아래에 이렇게 이어서 말해요.'},
+    {art:'대한민국헌법 제21조 제4항', cl:'#6FA8FF', key:'타인', opts:['타인','자신','친구'], txt:'언론·출판은 타인의 명예나 권리 또는 공중도덕이나 사회윤리를 침해하여서는 아니된다.', sub:'표현의 자유에는 처음부터 조건이 붙어 있어요. 다른 사람의 존엄을 부수는 데까지는 자유가 아니라는 것. 자유와 존엄이 부딪히면, 헌법은 존엄 쪽에 서요.', hl:true}
+  ],
+  q:'만약 친구가 “밈 올리는 것도 표현의 자유잖아”라고 말한다면, 나는 뭐라고 대답하고 싶나요? 위의 헌법 조문을 참고해서 적어 보세요.'},
+2:{ chips:['제31조','제34조','제17조'],
+  cards:[
+    {art:'대한민국헌법 제31조 제1항', cl:'#F2A93B', key:'균등', opts:['균등','차등','자유'], txt:'모든 국민은 능력에 따라 균등하게 교육을 받을 권리를 가진다.', sub:'‘능력에 따라’라는 말을 자주 오해해요. “능력 있는 사람만”이라는 뜻이 아니에요. 돈이나 집안 형편처럼 능력이 아닌 것 때문에 배움에서 밀려나면 안 된다는 뜻이에요. 시우의 ‘세 줄’은 능력의 문제였을까요, 컴퓨터가 없는 환경의 문제였을까요?'},
+    {art:'대한민국헌법 제34조 제1항', cl:'#7FB59B', key:'인간', opts:['인간','부자','일등'], txt:'모든 국민은 인간다운 생활을 할 권리를 가진다.', sub:'헌법은 사람을 성적표로 보지 않아요. 결과를 만들어 내지 못한 사람에게도 인간다운 생활과 존중이 보장되어야 한다고 말해요. ‘쓸모’를 증명해야만 존중받는 세상은, 헌법이 그리는 세상이 아니에요.'},
+    {art:'대한민국헌법 제17조', cl:'#C98AB8', key:'사생활', opts:['사생활','성적','재산'], txt:'모든 국민은 사생활의 비밀과 자유를 침해받지 아니한다.', sub:'시우의 가정 형편은 시우의 사생활이에요. 돕고 싶은 마음이 진짜라도, 그 이야기를 어디까지 알릴지 정할 권리는 시우에게 있어요. “말해도 돼?”라는 한 마디가 헌법 제17조를 지키는 방법이었던 거예요.', hl:true}
+  ],
+  q:'시우에게 “무임승차”라고 말하기 전에, 우리 조가 꼭 했어야 했던 일 한 가지는 무엇일까요?'},
+3:{ chips:['제1조 제2항','알 권리'],
+  cards:[
+    {art:'대한민국헌법 제1조 제2항', cl:'#F2A93B', key:'주권', opts:['주권','책임','세금'], txt:'대한민국의 주권은 국민에게 있고, 모든 권력은 국민으로부터 나온다.', sub:'나라의 주인이 국민이라는 뜻이에요. 그런데 주인 노릇을 하려면 판단해야 하고, 판단하려면 정확한 정보가 필요해요. 국민이 가짜 정보로 판단하게 되면, 주권은 그대로인데 그 주권이 엉뚱한 방향으로 쓰여요. 가짜 뉴스가 민주주의의 문제인 이유가 바로 이거예요.'},
+    {art:'알 권리 — 헌법재판소가 제21조에서 찾아낸 권리', cl:'#6FA8FF', key:'정보', opts:['정보','소문','영상'], txt:'국민은 정확한 정보에 자유롭게 접근하고 알 권리를 가진다.', sub:'헌법재판소는 표현의 자유(제21조) 안에 ‘알 권리’가 들어 있다고 봤어요. 그런데 알 권리는 ‘진짜 정보’를 알 권리예요. 가짜 정보가 넘치면 알 권리는 오히려 망가져요. 출처를 확인하고 거짓을 바로잡는 일은, 나와 친구들의 알 권리를 지키는 일이기도 해요.', hl:true}
+  ],
+  q:'앞으로 ‘충격 영상’을 공유하기 전에 내가 확인할 것들을, 나만의 체크리스트로 적어 보세요. (예: 계정, 댓글, 사진…)'},
+4:{ chips:['제1조 제1항','제11조'],
+  cards:[
+    {art:'대한민국헌법 제1조 제1항', cl:'#E4573D', key:'민주', opts:['민주','다수','승자'], txt:'대한민국은 민주공화국이다.', sub:'‘민주’는 다수의 뜻으로 정한다는 말이고, ‘공화’는 나라가 특정한 누군가가 아니라 모두의 것이라는 말이에요. 헌법 1조가 두 단어를 붙여 쓴 이유가 있어요. 다수의 뜻으로 정하되, 그 결과가 모두의 것이어야 한다는 것. 22명이 이기고 1명이 사라지는 결정은, 절반만 헌법적인 결정이에요.'},
+    {art:'대한민국헌법 제11조 제1항', cl:'#C9B45A', key:'평등', opts:['평등','동일','특별'], txt:'모든 국민은 법 앞에 평등하다. 누구든지 성별·종교 또는 사회적 신분에 의하여 정치적·경제적·사회적·문화적 생활의 모든 영역에 있어서 차별을 받지 아니한다.', sub:'몸이 불편하다는 이유로 반 대표 종목에서 처음부터 배제된다면, 그것은 참여의 평등이 깨진 거예요. 평등은 모두를 똑같이 대하는 게 아니라, 모두가 참여할 수 있게 조건을 살피는 것에서 시작해요.'},
+    {art:'다수결로도 넘을 수 없는 선', cl:'#6FA8FF', key:'투표', opts:['투표','힘','돈'], txt:'기본권은 투표로 빼앗을 수 없다.', sub:'만약 반 전체가 투표해서 “도윤이는 체육대회에 아예 나오지 마”라고 정하면, 그 결정은 유효할까요? 아니에요. 사람의 기본적인 권리는 다수결의 대상이 아니에요. 헌법이 존재하는 가장 큰 이유가 이거예요. 다수의 힘에도 한계선을 그어 두는 것.', hl:true}
+  ],
+  q:'“다수결로 정했으니까 끝이야”라고 말하는 친구에게, 나는 뭐라고 대답하고 싶나요?'}
+};
+function thinkFeedback(t){
+  const has = re=>re.test(t);
+  if(t.length<10) return '짧아도 괜찮아요. 한 문장의 생각도 진짜 생각이에요. 이 문장은 마지막 거울에서 다시 만나게 될 거예요.';
+  if(has(/물어|묻|질문/)) return '“물어본다”는 말이 문장에 들어 있네요. 네 개의 물결을 통과하는 열쇠를 정확히 짚었어요. 이 문장은 마지막 거울에서 다시 만나게 될 거예요.';
+  if(has(/확인|출처|검색|사실|가짜/)) return '“확인”하려는 마음이 문장에 담겼어요. 퍼지는 것보다 빠른 건 없지만, 멈추는 건 언제나 가능하죠. 이 문장은 마지막 거울에서 다시 만나게 될 거예요.';
+  if(has(/존엄|평등|권리|자유|헌법|주권/)) return '헌법의 말을 자기 문장으로 옮겨 적었네요. 조문은 외울 때가 아니라 이렇게 내 말이 될 때 힘이 생겨요. 이 문장은 마지막 거울에서 다시 만나게 될 거예요.';
+  return '당신의 문장이 물결 지도에 담겼어요. 이 생각은 마지막 거울에서 다시 만나게 될 거예요.';
+}
+function scrLaw(n){
+  if(!S.done[n]){ navHome(); return; }
+  const L = LAW[n];
+  const shuffle = a=>a.slice().sort(()=>Math.random()-.5);
+  const needCount = L.cards.filter(c=>c.key).length;
+  const solvedArr = S.ui.lawSolved[n] = S.ui.lawSolved[n]||[];
+  let solved = 0;
+  const cardsHTML = L.cards.map((c,ci)=>{
+    const pre = c.key && solvedArr.indexOf(ci)>-1;
+    if(pre) solved++;
+    let txt = c.txt;
+    if(c.key && !pre) txt = txt.replace(c.key, `<span class="blank" id="bl${ci}" style="color:${c.cl}">?&nbsp;?</span>`);
+    else if(c.key && pre) txt = txt.replace(c.key, `<span class="blank filled" style="color:${c.cl};border-bottom-color:transparent">${c.key}</span>`);
+    return `<div class="law-card${c.hl?' hl':''}" id="lc${ci}" style="border-top:4px solid ${c.cl}">
+      <div class="art" style="color:${c.cl}">${c.art}</div>
+      <div class="txt">“${txt}”</div>
+      ${c.key&&!pre?`<div class="quiz" id="qz${ci}"><span class="q-hint">빈칸에 들어갈 말을 골라 보세요</span>
+        ${shuffle(c.opts).map(o=>`<button class="qchip" style="color:${c.cl};border-color:${c.cl}" data-o="${o}">${o}</button>`).join('')}</div>`:''}
+      ${pre?`<span class="won-mark" style="color:${c.cl}">✓</span>`:''}
+      <div class="sub" id="sb${ci}" style="${c.key&&!pre?'display:none':''}">${dicify(c.sub)}</div>
+    </div>`;
+  }).join('');
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">${SC_META[n].no} · 헌법이라는 렌즈</div>
+    <h2>같은 장면을<br>다른 눈으로</h2>
+    <p>헌법은 우리를 심판하러 온 게 아니에요. 안경에 가까워요.
+    조문 속 <strong>빈칸을 채우면</strong> 그 안경의 설명이 열려요.</p>
+    ${cardsHTML}
+    <div class="q-open"><div class="qo-t">${L.q}</div>
+      <textarea id="ta" rows="5" placeholder="정답이 없는 질문이에요. 떠오른 만큼만 적어 보세요.&#10;(여기에 적은 내용은 이 기기에만 저장되고, 서버로 보내지 않아요)"></textarea>
+      <button class="think-save" id="sv">🧩 이 생각을 물결 지도에 담기</button>
+      <div id="fb"></div></div>
+    <div class="spacer"></div>
+    <button class="btn" id="nx" disabled style="opacity:.4">거울 앞에 서기 →</button>
+    <p class="note" id="gate" style="text-align:center">빈칸 ${needCount}개를 모두 채우면 열려요 (0/${needCount})</p>
+  </section>`);
+  show(sc);
+  const nx = sc.querySelector('#nx'), gate = sc.querySelector('#gate');
+  let celebrated = false;
+  function unlockCheck(anim){
+    gate.textContent = solved>=needCount ? '' : `빈칸 ${needCount}개를 모두 채우면 열려요 (${solved}/${needCount})`;
+    if(solved>=needCount && !celebrated){
+      celebrated = true;
+      nx.disabled=false; nx.style.opacity=1;
+      gate.textContent='아래 질문에 생각을 남기면 마지막 거울에서 다시 만날 수 있어요.';
+      nx.parentNode.insertBefore(el(`<div style="text-align:center">
+        <p class="note" style="margin-bottom:6px">${anim?'🎉 렌즈 완성 — 헌법 배지 획득!':'헌법 배지'}</p>
+        <div class="chip-shelf" style="justify-content:center">${LAW[n].chips.map(c=>chipBadge(c, !!anim)).join('')}</div>
+      </div>`), nx);
+      if(anim) nx.scrollIntoView({behavior:'smooth', block:'center'});
+    }
+  }
+  L.cards.forEach((c,ci)=>{
+    if(!c.key || solvedArr.indexOf(ci)>-1) return;
+    sc.querySelectorAll(`#qz${ci} .qchip`).forEach(b=>{
+      b.onclick = ()=>{
+        if(b.dataset.o===c.key){
+          const bl = sc.querySelector(`#bl${ci}`);
+          bl.textContent = c.key; bl.classList.add('filled');
+          sc.querySelector(`#qz${ci}`).remove();
+          sc.querySelector(`#sb${ci}`).style.display='block';
+          sc.querySelector(`#lc${ci}`).appendChild(el(`<span class="won-mark" style="color:${c.cl}">✓</span>`));
+          solved++;
+          solvedArr.push(ci);
+          saveProgress();
+          unlockCheck(true);
+        } else {
+          b.classList.add('no');
+        }
+      };
+    });
+  });
+  unlockCheck(false);
+  // 생각 조각 — 이 기기에만 저장 (서버 전송 없음)
+  const ta = sc.querySelector('#ta'), sv = sc.querySelector('#sv'), fb = sc.querySelector('#fb');
+  if(S.notes[n]){
+    ta.value = S.notes[n].t;
+    ta.readOnly = true; ta.style.opacity=.75; sv.style.display='none';
+    fb.innerHTML = `<div class="think-fb"><span class="fb-badge">🧩 생각 조각 (${Object.keys(S.notes).length}/4)</span><br>이미 담아 둔 생각이에요. 마지막 거울에서 다시 만나요.</div>`;
+  } else {
+    ta.value = S.ui.drafts['law'+n] || '';
+    ta.addEventListener('input', ()=>{ S.ui.drafts['law'+n] = ta.value; });
+    ta.addEventListener('blur', saveProgress);
+    sv.onclick = ()=>{
+      const t = ta.value.trim();
+      if(!t){ fb.innerHTML = `<div class="think-fb">아직 빈 칸이에요. 한 문장이면 충분해요 — 지금 머릿속에 스친 것을 그대로 적어도 돼요.</div>`; return; }
+      S.notes[n] = { q:L.q, t:t };
+      delete S.ui.drafts['law'+n];
+      saveProgress();
+      ta.readOnly = true; ta.style.opacity=.75; sv.style.display='none';
+      fb.innerHTML = `<div class="think-fb"><span class="fb-badge">🧩 생각 조각 획득! (${Object.keys(S.notes).length}/4)</span><br>${thinkFeedback(t)}</div>`;
+    };
+  }
+  sc.querySelector('#nx').onclick = ()=>nav(scrMini, n);
+  coach('law','빈칸을 채우면 설명이 열려요. 모르는 낱말은 밑줄을 눌러 보세요.');
+}
+
+/* ══════════ 7. 미니 거울 (시나리오별) ══════════ */
+const MIRROR_MAP = { 1:[0,1], 2:[2], 3:[3], 4:[4] };
+const MIRROR_GOOD = { 1:['repair','voice'], 2:['late','respect'], 3:['verify','correct'], 4:['late','partner'] };
+/* 속마음↔겉행동 비교용 — '겉으로 한 첫 행동(c1)'이 좋은 쪽이었는지. */
+const GOOD_FIRST = { 1:['speak','dm'], 2:['askgroup','askdm'], 3:['ask','search'], 4:['object','private'] };
+/* 속마음이 이미 '옳은 쪽'으로 기울어 있었는지(자각형) */
+const AWARE_INNER = ['hmm','jiho','worry','odd','doubt','doyun'];
+/* 이중 질문 비교용 — 선택지를 '마음의 방향'으로 묶는다. */
+const DUAL_DIR = {
+  2:{ pile:'같이 몰아세우는', quiet:'지켜보는', askgroup:'먼저 물어보는', askdm:'먼저 물어보는' }
+};
+function dualCompare(n, ik, rk){
+  if(ik===rk) return {state:'same'};
+  const d = DUAL_DIR[n];
+  if(d && d[ik] && d[ik]===d[rk]) return {state:'dir', name:d[ik]};
+  return {state:'diff'};
+}
+function splitEmoji(x){
+  const m = x.match(/^(\S+)\s+(.+)$/);
+  return m ? {e:m[1], t:m[2]} : {e:'💭', t:x};
+}
+function mmDots(v){
+  let d=''; for(let i=1;i<=5;i++) d+=`<i class="${i<=v?'on':''}"></i>`;
+  return `<div class="mm-dots">${d}<span class="mm-score">${v}점</span></div>
+    <div class="mm-scale"><span>전혀 아니다</span><span>매우 그렇다</span></div>`;
+}
+function scrMini(n){
+  if(!S.done[n]){ navHome(); return; }
+  const stance = S.done[n].stance;
+  const good = MIRROR_GOOD[n].includes(stance);
+  const stColor = STANCE_META[n][stance].c;
+  const ex = S.extra[n]||{};
+  let deepRows = '';
+  if(ex.said){
+    deepRows += `<div class="mm-card" style="border-color:#F2C480;background:#FFFDF6">
+      <div class="mm-lb" style="color:#B8860B">✏️ 내가 직접 쓴 말</div>
+      <div class="mm-q" style="margin-bottom:10px">“${esc(ex.said.t)}”</div>
+      <div style="font-size:15px;color:var(--paper-dim);line-height:1.7">이 앱은 이 말을 <b style="color:var(--paper)">‘${C1L[n][ex.said.k]||ex.said.k}’</b> 쪽으로 읽고 이야기를 이어 갔어요.
+      낱말을 보고 가장 가까운 길을 고른 것뿐이라, 진짜 마음과 다르게 읽혔을 수도 있어요.
+      다르게 읽혔다면 — 내 말이 어느 길이었는지는 <b>스스로 정해 보세요.</b> 그 판단이 이 화면보다 정확해요.</div>
+    </div>`;
+  }
+  if(ex.inner){
+    const c1 = S.done[n].c1;
+    const act = C1L[n][c1] || '';
+    const io = splitEmoji(ex.inner.x);
+    const aware = AWARE_INNER.includes(ex.inner.k);
+    const goodAct = (GOOD_FIRST[n]||[]).includes(c1);
+    const actColor = goodAct ? '#2E9E74' : '#8A94A6';
+    let linkCls, linkTxt, note;
+    if(aware && goodAct){
+      linkCls='same'; linkTxt='⇉ 속마음도 행동도 같은 방향이에요';
+      note='마음이 기운 쪽으로 몸도 그대로 움직였어요. 생각과 행동이 하나였던 거예요. 드물고, 멋진 일이에요.';
+    } else if(!aware && goodAct){
+      linkCls='same'; linkTxt='⭐ 속마음을 넘어선 순간이에요';
+      note='처음엔 마음이 다른 쪽으로 살짝 기울었는데, 행동은 좋은 쪽으로 옮겨 갔어요. 이건 간격이 아니라 극복이에요. 흔들리고도 결국 옳게 행동하는 것 — 그게 제일 어려운 건데, 방금 당신이 해냈어요.';
+    } else if(aware && !goodAct){
+      linkCls='diff'; linkTxt='⇄ 속마음과 행동 사이에 간격이 있어요';
+      note='마음은 이미 알고 있었어요. 그런데 행동은 거기까지 가지 못했어요. 그 사이에 무엇이 있었을까요? 분위기, 친구들 눈, 귀찮음… 딱 하나만 떠올려 보세요. 그게 뭔지 아는 사람은 세상에 당신뿐이에요.';
+    } else {
+      linkCls='same'; linkTxt='⇉ 속마음과 행동이 솔직하게 만났어요';
+      note='마음이 기운 대로 몸도 움직였어요. 그것도 솔직한 거예요. 다음엔 그 마음에서 딱 한 걸음만 더 가 보면 어떨까요?';
+    }
+    deepRows += `<div class="mm-card" style="border-color:#DCC8F2">
+      <div class="mm-lb" style="color:#7B4FBF">🔒 아까 나만 봤던 답 — 속마음과 겉행동</div>
+      <div class="mm-duo">
+        <div class="mm-cell" style="border-color:#DCC8F2;background:#FBF8FF">
+          <div class="cap" style="color:#7B4FBF">속마음</div>
+          <div class="big">${io.e}</div>
+          <div class="val">${io.t}</div>
+        </div>
+        <div class="mm-cell" style="border-color:${actColor};background:#fff">
+          <div class="cap" style="color:${actColor}">겉으로 한 첫 행동</div>
+          <div class="big">${goodAct?'🗣️':'🤐'}</div>
+          <div class="val" style="color:${actColor}">${act}</div>
+        </div>
+      </div>
+      <div class="mm-link ${linkCls}">${linkTxt}</div>
+      <div style="font-size:15px;color:var(--paper-dim);line-height:1.7;margin-top:8px">${note}</div>
+    </div>`;
+  }
+  if(ex.ideal){
+    const real = C1L[n][S.done[n].c1] || '';
+    const idealLb = C1L[n][ex.ideal.k] || ex.ideal.x;
+    const cmp = dualCompare(n, ex.ideal.k, S.done[n].c1);
+    const near = cmp.state!=='diff';
+    const linkTxt = cmp.state==='same' ? '⇉ 두 답이 똑같았어요'
+      : cmp.state==='dir' ? '⇉ 방법은 다르지만, 같은 방향이에요'
+      : '⇄ 두 답의 방향이 달랐어요';
+    const note = cmp.state==='same'
+      ? '멋지다고 생각하는 것을 실제로도 골랐어요. 진짜 교실에서도 그럴 수 있는지 — 그게 다음 연습이에요.'
+      : cmp.state==='dir'
+      ? `둘 다 ‘${cmp.name}’ 선택이에요. 방법(공개적으로 말할지, 조용히 개인톡을 할지)은 달랐지만, 마음의 방향은 같았어요. 상황에 따라 어느 방법이 나은지 고르는 것 — 그게 다음 연습이에요.`
+      : '이 간격은 부끄러운 게 아니에요. 솔직하게 답했다는 증거예요. 무엇이 멋진지는 이미 알고 있으니까, 남은 건 아는 것과 하는 것 사이를 좁히는 연습뿐이에요.';
+    deepRows += `<div class="mm-card" style="border-color:#A6C6F2">
+      <div class="mm-lb" style="color:var(--ripple)">두 개의 질문, 두 개의 답</div>
+      <div class="mm-duo">
+        <div class="mm-cell" style="border-color:#A6C6F2;background:#F4F8FF">
+          <div class="cap" style="color:var(--ripple)">가장 멋진 선택</div>
+          <div class="big">✨</div>
+          <div class="val">${idealLb}</div>
+        </div>
+        <div class="mm-cell" style="border-color:${near?'#A6C6F2':'#F2C480'};background:#fff">
+          <div class="cap" style="color:${near?'var(--ripple)':'var(--signal)'}">진짜 나의 선택</div>
+          <div class="big">${cmp.state==='same'?'🤝':cmp.state==='dir'?'👍':'🙋'}</div>
+          <div class="val">${real}</div>
+        </div>
+      </div>
+      <div class="mm-link ${near?'same':'diff'}">${linkTxt}</div>
+      <div style="font-size:15px;color:var(--paper-dim);line-height:1.7;margin-top:8px">${note}</div>
+    </div>`;
+  }
+  if(ex.folded){
+    deepRows += `<div class="mm-card" style="border-color:rgba(232,137,12,.45);background:#FFF9EC">
+      <div class="mm-lb" style="color:var(--signal)">한 번 꺼냈다가, 물러선 말</div>
+      <div class="mm-steps">
+        <div class="mm-step"><div class="nd"></div><div class="tx">말을<br>꺼냈다</div></div>
+        <div class="mm-step"><div class="nd"></div><div class="tx">반대에<br>부딪혔다</div></div>
+        <div class="mm-step stop"><div class="nd"></div><div class="tx">여기서<br>멈췄다</div></div>
+      </div>
+      <div style="font-size:15px;color:var(--paper);line-height:1.7;margin-top:13px">초록 선까지는 갔어요. 멈춘 건 실패가 아니라 아주 흔한 일이에요.
+      다음에 필요한 건 대단한 용기가 아니라 <b>주황 점선 한 칸, 몇 초만 더 버티는 것</b>이에요.
+      오늘 그 몇 초가 어디였는지 봤으니까, 다음엔 알아볼 수 있어요.</div>
+    </div>`;
+  }
+  const rows = MIRROR_MAP[n].map(qi=>{
+    return `<div class="mm-card">
+      <div class="mm-q">“${CHECK_Q[qi]}”</div>
+      <div class="mm-lb">시작할 때 당신이 누른 답</div>
+      ${mmDots(S.check[qi])}
+      <div class="mm-arrow">↓ 그리고 방금, 실제 상황에서</div>
+      <div style="text-align:center"><span class="mm-chip" style="color:${stColor}">${STANCE_META[n][stance].n}</span></div>
+      <div class="mm-tag ${good?'ok':'gap'}">${
+        good && S.check[qi]>=4 ? '✓ 말과 선택이 같은 방향이에요'
+        : good && S.check[qi]<4 ? '✓ 말보다 선택이 한 걸음 앞섰어요'
+        : !good && S.check[qi]>=4 ? '△ 말과 선택 사이에 간격이 보여요'
+        : '— 말과 선택이 솔직하게 만났어요. 여기서 시작하면 돼요'}</div>
+    </div>`;
+  }).join('');
+  const dc = doneCount();
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">${SC_META[n].no} · 작은 거울</div>
+    <h2>말한 나,<br>선택한 나</h2>
+    <p style="margin-bottom:18px">점수도 판정도 아니에요. 시작할 때 누른 답과 방금의 선택을 나란히 놓아 보는 것뿐이에요.</p>
+    ${rows}
+    ${deepRows}
+    <p>${good
+      ? '말과 선택이 비슷한 방향을 향했다면, 그건 우연이 아니라 당신 안에 이미 있는 힘이에요. 다만 오늘은 연습 화면이었어요. 진짜 단톡방과 진짜 교실은 이보다 훨씬 어렵죠. 그러니 이 감각을 기억해 두세요.'
+      : '시작할 때 한 대답과 실제 선택이 조금 달라도 괜찮아요. 머리로는 “이렇게 해야지”라고 알고 있어도, 막상 그 상황이 되면 분위기나 친구들 시선 때문에 다르게 행동하게 되거든요. 누구나 그래요. 오늘 중요한 것은 딱 하나예요. 내 생각과 행동이 어디에서 달라지는지, 방금 내 눈으로 직접 확인했다는 것. 그걸 알고 나면, 다음에 비슷한 순간이 왔을 때 “아, 지금이 그 순간이구나” 하고 한 번 멈출 수 있어요. 그 멈춤에서 연습이 시작돼요.'}</p>
+    <div class="spacer"></div>
+    <button class="btn" id="nx">${dc>=4?'물결 지도로 — 마지막 거울이 열렸어요':'물결 지도로 돌아가기'} →</button>
+  </section>`);
+  show(sc);
+  dicifyIn(sc, 'p');
+  sc.querySelector('#nx').onclick = ()=>navHome();
+}
+
+/* ══════════ 8. 나의 물결 유형 (R3) ══════════ */
+const TYPE_META = {
+  V:{ emoji:'🔦', name:'등대형', sub:'먼저 비추는 빛', color:'#3D7BF5',
+      shine:'방마다 꼭 필요한 ‘첫 번째 목소리’를 낼 줄 알아요. 당신의 한 마디가 두 번째 사람의 문을 열어요.',
+      practice:'혼자 다 짊어지지 않기. 말한 다음, 두 번째 목소리를 초대해 보기.',
+      mission:'내 말에 이어 “너는 어떻게 생각해?”라고 물어서, 두 번째 목소리를 초대해 보기' },
+  R:{ emoji:'🌉', name:'징검다리형', sub:'물어봐 주는 돌다리', color:'#2E9E74',
+      shine:'판정하기 전에 먼저 묻고, 당사자를 결정의 자리로 초대해요. 네 물결의 공통 열쇠를 이미 손에 쥐고 있어요.',
+      practice:'물은 다음, 들은 이야기를 끝까지 지켜 주기.',
+      mission:'누군가에 관한 일을 정하기 전에 “너는 어때?” 한 번 물어보기' },
+  C:{ emoji:'🔍', name:'돋보기형', sub:'잠깐, 확인부터', color:'#E8890C',
+      shine:'멈추고 확인하는 신중함이 있어요. 계정·댓글·사진을 뜯어보는 눈은 아무나 갖지 못해요.',
+      practice:'알아낸 것을 혼자 두지 않기. 나를 지키는 확인에서, 우리를 지키는 확인으로.',
+      mission:'확인해서 알아낸 것 하나를, 나만 알지 말고 친구 한 명에게 알려 주기' },
+  H:{ emoji:'🐟', name:'연어형', sub:'되돌아오는 용기', color:'#7FB59B',
+      shine:'가장 좋은 타이밍을 놓쳐도 그냥 삼키지 않고 되돌아와요. 실수를 고칠 줄 아는 시민이 사회를 튼튼하게 해요.',
+      practice:'되돌아오는 시간을 조금씩 앞당겨 보기. 하루가 반나절로, 반나절이 그 자리에서로.',
+      mission:'마음에 걸리는 일이 생기면 하루를 넘기지 않고 그날 말해 보기' },
+  P:{ emoji:'☂️', name:'우산형', sub:'씌워 주고 싶은 마음', color:'#C98AB8',
+      shine:'누군가 곤란해지면 도우려는 마음이 빠르게 움직여요. 그 따뜻함은 진짜예요.',
+      practice:'씌우기 전에 “씌워 줄까?” 물어보기. 배려의 완성은 대신 정해 주는 게 아니라, 결정의 자리에 초대하는 것.',
+      mission:'도와주기 전에 “내가 이렇게 해도 될까?” 먼저 물어보기' },
+  S:{ emoji:'🌱', name:'씨앗형', sub:'아직 조용한 마음', color:'#8A94A6',
+      shine:'조용히 있었지만, 속마음 기록을 보면 마음은 이미 움직이고 있었어요. 씨앗은 아직 싹이 아닐 뿐, 비어 있는 게 아니에요.',
+      practice:'첫 마디 한 문장을 미리 준비해 두기. “잠깐, 그건 좀…” — 이 여섯 글자면 충분해요.',
+      mission:'하고 싶었던 말 한 문장을 미리 준비해 뒀다가, 이번 주에 한 번 꺼내 보기' },
+  J:{ emoji:'🎡', name:'바람개비형', sub:'분위기를 타는 마음', color:'#D98E5F',
+      shine:'분위기의 힘을 누구보다 잘 알아요. 그 감각은 반대로 쓰면, 분위기를 바꾸는 힘이 돼요.',
+      practice:'돌기 전에 한 번 멈춰서 “이 바람, 어디서 오지?” 물어보기.',
+      mission:'ㅋㅋ를 보내기 전에 딱 3초 멈춰서 “이거, 괜찮은 웃음인가?” 생각해 보기' }
+};
+const TYPE_FAM = {
+  voice:'V', correct:'C_V', respect:'R', partner:'R', verify:'C',
+  repair:'H', late:'H', expose:'P', propose:'P',
+  silence:'S', silent:'S', quiet:'S', half:'S',
+  join:'J', blame:'J', spread:'J', majority:'J'
+};
+const FIRST_FAM = { speak:'V', dm:'V', object:'V', askgroup:'R', askdm:'R', private:'R', search:'C', ask:'C' };
+function computeType(){
+  const sc = {V:0,R:0,C:0,H:0,P:0,S:0,J:0};
+  [1,2,3,4].forEach(k=>{
+    const d = S.done[k]; if(!d) return;
+    let f = TYPE_FAM[d.stance];
+    if(f==='C_V') f='V'; // correct(확인하고 바로잡음)는 목소리 가족
+    if(f) sc[f] += 1;
+    const g = FIRST_FAM[d.c1];
+    if(g) sc[g] += 0.5;
+  });
+  const pri = ['R','V','C','H','P','S','J']; // 동점 시 우선순위
+  let best = pri[0];
+  pri.forEach(f=>{ if(sc[f] > sc[best]) best = f; });
+  return { key:best, score:sc };
+}
+function subBadges(){
+  const out = [];
+  let over = false;
+  [1,2,3,4].forEach(k=>{
+    const ex = S.extra[k], d = S.done[k];
+    if(ex && ex.inner && d && !AWARE_INNER.includes(ex.inner.k) && (GOOD_FIRST[k]||[]).includes(d.c1)) over = true;
+  });
+  if(over) out.push('⭐ 숨은 용기 — 흔들린 마음을 넘어 행동했어요');
+  if([1,2,3,4].some(k=>S.extra[k] && S.extra[k].folded)) out.push('⏱ 몇 초의 기록 — 다음엔 몇 초만 더');
+  if(Object.keys(S.notes).length>=4) out.push('🧩 생각 수집가 — 문장 4개를 모두 남겼어요');
+  return out;
+}
+/* ── 미션 저장 (R8) — 이 기기에만 저장 ── */
+function today_(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function setMission(typeKey){
+  try{
+    const prev = JSON.parse(localStorage.getItem('pinu_mission')||'null');
+    if(!prev || prev.type!==typeKey){
+      localStorage.setItem('pinu_mission', JSON.stringify({type:typeKey, date:today_(), asked:false}));
+    }
+  }catch(e){}
+}
+function renderMissionAsk(host){
+  if(!host) return;
+  let m=null; try{ m=JSON.parse(localStorage.getItem('pinu_mission')||'null'); }catch(e){}
+  if(!m || m.asked || !m.date || m.date===today_() || !TYPE_META[m.type]) return;
+  const T = TYPE_META[m.type];
+  const card = el(`<div class="mission-ask">
+    <div class="ma-q">${wolSVG(38)}<span>지난번 미션 기억나요? — “${T.mission}” 어땠어요?</span></div>
+    <div class="ma-btns">
+      <button data-a="did">🙂 해 봤어요</button>
+      <button data-a="notyet">🌱 아직이에요</button>
+    </div>
+  </div>`);
+  card.querySelectorAll('button').forEach(b=>{
+    b.onclick = ()=>{
+      m.asked = true; m.answer = b.dataset.a;
+      try{ localStorage.setItem('pinu_mission', JSON.stringify(m)); }catch(e){}
+      card.innerHTML = `<div class="ma-q">${wolSVG(38,'joy')}<span>${b.dataset.a==='did'
+        ? '멋져요. 화면 밖의 그 순간이 진짜 연습이었어요.'
+        : '괜찮아요. 미션은 도망가지 않아요 — 이번 주에 기회가 또 올 거예요.'}</span></div>`;
+    };
+  });
+  host.appendChild(card);
+}
+
+/* ══════════ 결과 카드 만들기 (R4) ══════════ */
+function roundRect_(x, xx, y, w, h, r){
+  x.beginPath();
+  x.moveTo(xx+r, y);
+  x.arcTo(xx+w, y, xx+w, y+h, r);
+  x.arcTo(xx+w, y+h, xx, y+h, r);
+  x.arcTo(xx, y+h, xx, y, r);
+  x.arcTo(xx, y, xx+w, y, r);
+  x.closePath();
+}
+function wrapText_(x, text, cx, y, maxW, lh){
+  const words = text.split(' ');
+  let line = '', yy = y;
+  words.forEach(w=>{
+    const t = line ? line+' '+w : w;
+    if(x.measureText(t).width > maxW && line){ x.fillText(line, cx, yy); line = w; yy += lh; }
+    else line = t;
+  });
+  if(line) x.fillText(line, cx, yy);
+  return yy;
+}
+function makeResultCard(){
+  const T = TYPE_META[computeType().key];
+  const cv = document.createElement('canvas');
+  cv.width = 900; cv.height = 1200;
+  const x = cv.getContext('2d');
+  const SANS = "'Pretendard','Apple SD Gothic Neo',sans-serif";
+  const SERIF = "'Gowun Batang',serif";
+  // 배경
+  x.fillStyle = '#FFF7EA'; x.fillRect(0,0,900,1200);
+  // 무지개 바
+  const rb = ['#FF9F68','#FFD166','#63C89B','#5D9BFF','#C792EA'];
+  rb.forEach((c,i)=>{ x.fillStyle=c; x.fillRect(150+i*120, 56, 120, 12); });
+  // 타이틀
+  x.textAlign='center';
+  x.fillStyle = '#3B3630';
+  x.font = '800 46px '+SANS;
+  x.fillText('너라면 어떻게 할래?', 450, 138);
+  x.fillStyle = '#6F675B';
+  x.font = '500 22px '+SANS;
+  x.fillText('피부에 닿는 민주주의 · 나의 선택이 만드는 물결', 450, 176);
+  // 유형
+  x.font = '130px serif';
+  x.fillText(T.emoji, 450, 330);
+  x.fillStyle = T.color;
+  x.font = '700 66px '+SERIF;
+  x.fillText('나의 물결 유형 — '+T.name, 450, 430);
+  x.fillStyle = '#3B3630';
+  x.font = '700 30px '+SANS;
+  x.fillText(T.sub, 450, 478);
+  // 나이테 (시나리오 4겹)
+  const cy = 660, cxx = 450, radii = [58, 92, 126, 160];
+  [1,2,3,4].forEach((n,i)=>{
+    const d = S.done[n];
+    x.beginPath();
+    if(d){
+      x.strokeStyle = STANCE_META[n][d.stance].c;
+      x.lineWidth = 18; x.setLineDash([]);
+      x.arc(cxx, cy, radii[i], -Math.PI/2 + n*0.5, -Math.PI/2 + n*0.5 + Math.PI*2*0.86);
+    } else {
+      x.strokeStyle = 'rgba(59,54,48,.2)';
+      x.lineWidth = 3; x.setLineDash([5,9]);
+      x.arc(cxx, cy, radii[i], 0, Math.PI*2);
+    }
+    x.stroke();
+  });
+  x.setLineDash([]);
+  // 가운데 물결이 얼굴
+  x.fillStyle = '#F2A93B'; x.beginPath(); x.arc(cxx, cy, 34, 0, Math.PI*2); x.fill();
+  x.fillStyle = '#4A3318';
+  x.beginPath(); x.arc(cxx-11, cy-6, 4.5, 0, Math.PI*2); x.fill();
+  x.beginPath(); x.arc(cxx+11, cy-6, 4.5, 0, Math.PI*2); x.fill();
+  x.strokeStyle = '#4A3318'; x.lineWidth = 4; x.lineCap='round';
+  x.beginPath(); x.arc(cxx, cy+6, 12, 0.25*Math.PI, 0.75*Math.PI); x.stroke();
+  // 헌법 배지 알약
+  const got=[]; [1,2,3,4].forEach(n=>{ if(S.done[n]) LAW[n].chips.forEach(c=>got.push(c)); });
+  if(got.length){
+    x.font = '700 24px '+SANS;
+    x.fillStyle = '#8A6A2F';
+    x.fillText('내가 모은 헌법 렌즈 ('+got.length+'/9)', 450, 880);
+    let px = 0, py = 916;
+    const widths = got.map(g=>x.measureText(g).width + 44);
+    let rowW = 0, rows = [[]];
+    got.forEach((g,i)=>{
+      if(rowW + widths[i] > 720){ rows.push([]); rowW = 0; }
+      rows[rows.length-1].push(i); rowW += widths[i] + 12;
+    });
+    rows.forEach(row=>{
+      const tw = row.reduce((a,i)=>a+widths[i],0) + (row.length-1)*12;
+      px = 450 - tw/2;
+      row.forEach(i=>{
+        x.fillStyle = '#FFF4D8';
+        roundRect_(x, px, py-30, widths[i], 44, 22); x.fill();
+        x.strokeStyle = 'rgba(232,137,12,.5)'; x.lineWidth = 2;
+        roundRect_(x, px, py-30, widths[i], 44, 22); x.stroke();
+        x.fillStyle = '#9A6206';
+        x.fillText(got[i], px + widths[i]/2, py+2);
+        px += widths[i] + 12;
+      });
+      py += 58;
+    });
+  }
+  // 미션 박스
+  x.fillStyle = '#E1F3E9';
+  roundRect_(x, 110, 1010, 680, 120, 22); x.fill();
+  x.strokeStyle = 'rgba(46,158,116,.5)'; x.lineWidth = 2.5;
+  roundRect_(x, 110, 1010, 680, 120, 22); x.stroke();
+  x.fillStyle = '#2E9E74';
+  x.font = '800 22px '+SANS;
+  x.fillText('🌱 이번 주, 한 가지만', 450, 1048);
+  x.fillStyle = '#3B3630';
+  x.font = '600 24px '+SANS;
+  wrapText_(x, T.mission, 450, 1084, 620, 32);
+  // 푸터
+  x.fillStyle = '#6F675B';
+  x.font = '500 20px '+SANS;
+  x.fillText(today_() + ' · 유형은 오늘 걸은 길의 모양이에요 — 다시 걸으면 달라져요', 450, 1172);
+  return cv;
+}
+function showCardOverlay(cv){
+  const url = cv.toDataURL('image/png');
+  const canShare = !!(navigator.share);
+  const ov = el(`<div class="shareov">
+    <img src="${url}" alt="나의 물결 유형 결과 카드">
+    <div class="so-btns">
+      <button id="dl">⬇ 이미지 저장</button>
+      ${canShare?'<button id="sh">📤 공유하기</button>':''}
+      <button id="cl">닫기</button>
+    </div>
+    <div class="so-hint">저장 버튼이 안 되면, 그림을 길게(꾹) 눌러 ‘사진에 저장’을 선택하세요.<br>카드에는 유형·나이테·배지만 담겨요. 코드나 속마음은 담기지 않아요.</div>
+  </div>`);
+  document.body.appendChild(ov);
+  ov.querySelector('#dl').onclick = ()=>{
+    try{
+      cv.toBlob(b=>{
+        const u = URL.createObjectURL(b);
+        const a = document.createElement('a');
+        a.href = u; a.download = '나의물결유형.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(u), 4000);
+      }, 'image/png');
+    }catch(e){}
+  };
+  if(canShare){
+    ov.querySelector('#sh').onclick = ()=>{
+      try{
+        cv.toBlob(async b=>{
+          try{
+            const f = new File([b], '나의물결유형.png', {type:'image/png'});
+            if(navigator.canShare && navigator.canShare({files:[f]})){
+              await navigator.share({files:[f], title:'너라면 어떻게 할래?'});
+            } else {
+              await navigator.share({title:'너라면 어떻게 할래?', text:'나의 물결 유형이 나왔어요!'});
+            }
+          }catch(e){}
+        }, 'image/png');
+      }catch(e){}
+    };
+  }
+  ov.querySelector('#cl').onclick = ()=>ov.remove();
+  ov.addEventListener('click', e=>{ if(e.target===ov) ov.remove(); });
+}
+
+/* ══════════ 9. 마지막 거울 ══════════ */
+const GM_KEYS = ['말하기','배려','판단','확인','살피기'];
+function gapStatus(qi){
+  const n = qi===0||qi===1 ? 1 : qi===2 ? 2 : qi===3 ? 3 : 4;
+  const good = MIRROR_GOOD[n].includes(S.done[n].stance);
+  return good ? 'ok' : 'gap';
+}
+function gapMapSVG(){
+  const cx=165, cy=128, R1=30, R2=84, RL=112;
+  const GREEN='#2E9E74', ORANGE='#E8890C';
+  let spokes='', nodes='', labels='';
+  for(let qi=0; qi<5; qi++){
+    const a = (-90 + qi*72) * Math.PI/180;
+    const st = gapStatus(qi);
+    const col = st==='ok' ? GREEN : ORANGE;
+    const x1=cx+R1*Math.cos(a), y1=cy+R1*Math.sin(a);
+    const x2=cx+R2*Math.cos(a), y2=cy+R2*Math.sin(a);
+    const lx=cx+RL*Math.cos(a), ly=cy+RL*Math.sin(a);
+    spokes += `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}"
+      stroke="${col}" stroke-width="2.5" ${st==='gap'?'stroke-dasharray="5 5"':''} opacity=".65"/>`;
+    nodes += `<circle cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" r="14" fill="${col}"/>
+      <text x="${x2.toFixed(1)}" y="${(y2+5).toFixed(1)}" text-anchor="middle"
+        font-size="14" font-weight="900" fill="#fff">${st==='ok'?'✓':'△'}</text>`;
+    labels += `<text x="${lx.toFixed(1)}" y="${(ly+5).toFixed(1)}" text-anchor="middle"
+      font-size="14.5" font-weight="800" fill="${col}" font-family="Pretendard,sans-serif">${GM_KEYS[qi]}</text>`;
+  }
+  const core = `<circle cx="${cx}" cy="${cy}" r="19" fill="#FFF0DB" stroke="#F2A93B" stroke-width="2"/>
+    <circle cx="${cx}" cy="${cy}" r="10" fill="#F2A93B"/>
+    <circle cx="${cx-3.6}" cy="${cy-2}" r="1.6" fill="#4A3318"/>
+    <circle cx="${cx+3.6}" cy="${cy-2}" r="1.6" fill="#4A3318"/>
+    <path d="M ${cx-4} ${cy+2.3} Q ${cx} ${cy+5.8} ${cx+4} ${cy+2.3}" stroke="#4A3318" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  return `<svg viewBox="0 0 330 256" role="img" aria-label="간격 지도">${spokes}${core}${nodes}${labels}</svg>`;
+}
+function scrFinal(){
+  if(doneCount()<4){ navHome(); return; }
+  const TP = computeType();
+  const T = TYPE_META[TP.key];
+  setMission(TP.key);
+  const sb = subBadges();
+  const okCnt = [0,1,2,3,4].filter(qi=>gapStatus(qi)==='ok').length;
+  const gapCnt = 5-okCnt;
+  const gapAreas = [0,1,2,3,4].filter(qi=>gapStatus(qi)==='gap').map(qi=>GM_KEYS[qi]);
+  const typeCard = `<div class="type-card" style="border-color:${T.color}">
+    <div class="tc-wol">${wolSVG(40,'joy')}<span>네 개의 물결을 다 걸었네요! 오늘 당신이 걸은 길의 모양은 —</span></div>
+    <div class="tc-emoji">${T.emoji}</div>
+    <div class="tc-name" style="color:${T.color}">${T.name}</div>
+    <div class="tc-sub" style="color:${T.color}">${T.sub}</div>
+    <div class="type-duo">
+      <div class="td-cell"><div class="td-cap" style="color:${T.color}">✨ 빛나는 점</div><div class="td-tx">${T.shine}</div></div>
+      <div class="td-cell"><div class="td-cap" style="color:var(--signal)">🌱 연습 구역</div><div class="td-tx">${T.practice}</div></div>
+    </div>
+    ${sb.length?`<div class="subbadges">${sb.map(s=>`<span>${s}</span>`).join('')}</div>`:''}
+    <details class="type-why"><summary>왜 이 유형이 되었나요?</summary>
+      ${[1,2,3,4].map(k=>`<div class="tw-row"><span>${SC_META[k].no} · ${SC_META[k].title}</span>
+        <b style="color:${STANCE_META[k][S.done[k].stance].c}">${STANCE_META[k][S.done[k].stance].n}</b></div>`).join('')}
+      <div style="padding:8px 4px;color:var(--paper-dim);font-size:13.5px">네 갈래 길의 색을 모아 가장 많이 걸은 방향을 읽었어요.</div>
+    </details>
+    <div class="tc-fixed">이 유형은 ‘오늘 걸은 길의 모양’이에요. 등급도, 성격 검사도 아니에요.<br>다른 길을 걸으면 유형도 달라져요.</div>
+  </div>`;
+  const missionCard = `<div class="mission-card">
+    <div class="mc-head">${wolSVG(30)}<span>이번 주, 한 가지만</span></div>
+    <div class="mc-tx">${T.mission}</div>
+    <div class="mc-note">확인은 아무도 안 해요. 다음에 만나면 “어땠어요?” 하고 딱 한 번 물어볼게요 — 어느 답이든 괜찮아요.</div>
+  </div>`;
+  const gapMap = `<div class="gapmap">
+    <div class="mm-lb" style="text-align:center;margin-bottom:4px">한눈에 보는 간격 지도</div>
+    ${gapMapSVG()}
+    <div class="gm-legend">
+      <span><b style="background:#2E9E74"></b>✓ 말과 선택이 같은 방향</span>
+      <span><b style="background:#E8890C"></b>△ 간격 발견</span>
+    </div>
+    <div class="gm-sum">${gapCnt===0
+      ? `다섯 가지 모두 <strong style="color:#2E9E74">초록</strong>이에요. 오늘 화면에서는요 — 진짜 교실에서도 그런지, 그게 다음 확인이에요.`
+      : `초록 ${okCnt}개 · 주황 ${gapCnt}개. 주황 점(<strong style="color:#E8890C">${gapAreas.join(', ')}</strong>)이 있는 곳이 당신의 연습 구역이에요. 약점이 아니라, 오늘 직접 찾아낸 출발점이에요.`}</div>
+  </div>`;
+  const rows = CHECK_Q.map((q,qi)=>{
+    const n = qi===0||qi===1 ? 1 : qi===2 ? 2 : qi===3 ? 3 : 4;
+    const st = S.done[n].stance;
+    const good = MIRROR_GOOD[n].includes(st);
+    const v = S.check[qi];
+    const dots = [1,2,3,4,5].map(i=>`<i class="${i<=v?'on':''}"></i>`).join('');
+    let tag, cls;
+    if(good && v>=4){ tag='✓ 말과 선택이 같은 방향을 향했어요'; cls='ok'; }
+    else if(good && v<4){ tag='✓ 말보다 선택이 한 걸음 앞섰어요'; cls='ok'; }
+    else if(!good && v>=4){ tag='△ 여기에 간격이 보여요 — 다음 연습 포인트예요'; cls='gap'; }
+    else { tag='말과 선택이 솔직하게 만났어요 — 여기서부터 시작하면 돼요'; cls='gap'; }
+    return `<div class="cmp">
+      <div class="c-q">“${q}”</div>
+      <div class="c-grid">
+        <div><div class="c-cap">말한 나</div><div class="c-dots">${dots}</div><div class="c-sub">${v}점 / 5점</div></div>
+        <div class="c-arrow">→</div>
+        <div><div class="c-cap">선택한 나 · ${SC_META[n].title}</div>
+          <span class="c-chip" style="color:${STANCE_META[n][st].c}">${STANCE_META[n][st].n}</span></div>
+      </div>
+      <div class="c-tag ${cls}">${tag}</div></div>`;
+  }).join('');
+  const sc = el(`<section class="screen night">
+    <div class="eyebrow">네 개의 물결 끝 · 마지막 거울</div>
+    <h2>너의 물결 유형이<br>나왔어요</h2>
+    ${typeCard}
+    ${missionCard}
+    <button class="btn" id="mkcard" style="margin:0 0 22px">🖼 결과 카드 저장·공유하기</button>
+    <h2 style="margin-top:8px">이제, 나란히<br>놓아 볼게요</h2>
+    <p>시작할 때의 다섯 가지 대답과, 네 개의 상황에서 실제로 걸은 길이에요. 판정이 아니라, 그냥 나란히 놓아 보는 거예요. 먼저 전체 그림부터 볼게요.</p>
+    ${gapMap}
+    ${rows}
+    ${(()=>{
+      const rows2 = [];
+      let anyOvercame=false, anyGap=false;
+      const cell = (cap, body)=>`<div class="deep-cell"><span class="dc-cap">${cap}</span><b>${body}</b></div>`;
+      const row = (k, badgeCls, badgeTxt, leftCap, leftBody, rightCap, rightBody)=>`
+        <div class="deep-row">
+          <div class="deep-top"><span class="deep-sc">${SC_META[k].no} · ${SC_META[k].title}</span>
+            <span class="deep-badge ${badgeCls}">${badgeTxt}</span></div>
+          <div class="deep-duo">${cell(leftCap,leftBody)}<span class="deep-arr">→</span>${cell(rightCap,rightBody)}</div>
+        </div>`;
+      [1,2,3,4].forEach(k=>{
+        const ex = S.extra[k]; if(!ex || !S.done[k]) return;
+        const act = C1L[k][S.done[k].c1]||'';
+        if(ex.inner){
+          const aware = AWARE_INNER.includes(ex.inner.k);
+          const goodAct = (GOOD_FIRST[k]||[]).includes(S.done[k].c1);
+          const io = splitEmoji(ex.inner.x);
+          let bc='same', bt='⇉ 같은 방향';
+          if(!aware && goodAct){ bc='over'; bt='⭐ 속마음을 넘어섬'; anyOvercame=true; }
+          else if(aware && !goodAct){ bc='gap'; bt='△ 간격 발견'; anyGap=true; }
+          rows2.push(row(k, bc, bt, '🔒 속마음', io.e+' '+io.t, '겉으로 한 첫 행동', act));
+        }
+        if(ex.said){
+          rows2.push(row(k, 'same', '✏️ 직접 쓴 말', '내가 쓴 말', '“'+esc(ex.said.t)+'”', '앱이 읽은 길', C1L[k][ex.said.k]||ex.said.k));
+        }
+        if(ex.ideal){
+          const c = dualCompare(k, ex.ideal.k, S.done[k].c1);
+          let bc='same', bt='🤝 두 답이 똑같음';
+          if(c.state==='dir'){ bt='⇉ 방법만 다른 같은 방향'; }
+          else if(c.state==='diff'){ bc='gap'; bt='⇄ 방향이 다름'; anyGap=true; }
+          rows2.push(row(k, bc, bt, '✨ 가장 멋진 선택', C1L[k][ex.ideal.k]||ex.ideal.x, '진짜 나의 선택', act));
+        }
+        if(ex.folded){
+          anyGap=true;
+          rows2.push(row(k, 'gap', '⏸ 몇 초의 지점', '여기까지 갔다', '말을 꺼냈다', '여기서 멈췄다', '반대에 부딪혀 물러섬'));
+        }
+      });
+      const closing = anyOvercame && !anyGap
+        ? '흔들리는 마음을 좋은 행동으로 옮긴 순간이 보여요. 이건 거리가 아니라 <b>극복</b>이에요 — 오늘 당신이 몇 번이나 해낸 일이에요.'
+        : anyOvercame
+        ? '어떤 곳에는 아직 거리가 있고, 어떤 곳에서는 흔들리는 마음을 좋은 행동으로 <b>넘어섰어요</b>. 거리는 좁히면 되고, 넘어선 경험은 기억하면 돼요.'
+        : '이 기록들은 점수가 아니라 <b>거리</b>예요. 거리가 있다는 걸 확인한 사람만 그 거리를 줄일 수 있어요. 오늘 당신이 한 일이 바로 그거예요.';
+      return rows2.length ? `<div class="law-card" style="margin-top:6px">
+        <div class="art" style="color:#8A6A2F;margin-bottom:10px">한 걸음 더 들여다보기</div>
+        ${rows2.join('')}
+        <div class="sub" style="font-size:15px;line-height:1.8;margin-top:4px">${closing}</div></div>` : '';
+    })()}
+    <div class="hub-ring" style="margin-top:18px">
+      <svg width="96" height="96" viewBox="0 0 96 96">${hubRingSVG()}</svg>
+      <div class="hr-txt"><b>당신의 시민 나이테</b><br>네 겹이 모두 생겼어요. 색이 마음에 들지 않는 겹이 있다면 — 나이테는 계속 자라니까, 다음 겹의 색은 바꿀 수 있어요.</div>
+    </div>
+    <p class="serif" style="font-size:17px;margin-top:16px">민주주의는 시험 과목이 아니라 근육에 가까워요.<br>
+    타고나는 게 아니라, 오늘 같은 연습으로 자라요.<br>
+    그리고 그 연습장은 언제나 가까이 있어요 —<br>
+    단톡방, 조별과제, 피드, 학급회의.<br>
+    <strong>당신의 피부에 닿는 모든 곳에요.</strong></p>
+    ${Object.keys(S.notes).length ? `<div style="margin-top:20px">
+      <div class="eyebrow" style="margin-bottom:10px">네 개의 물결에 당신이 남긴 문장들</div>
+      ${[1,2,3,4].filter(k=>S.notes[k]).map(k=>`<div class="note-quote">
+        <div class="nq-s">${SC_META[k].title}</div>
+        <div class="nq-t">“${S.notes[k].t.replace(/</g,'&lt;').replace(/>/g,'&gt;')}”</div></div>`).join('')}
+      <p class="note">이 문장들은 이 기기에만 저장돼요. 서버로는 보내지 않았어요. 마음에 드는 문장이 있다면 공책에도 옮겨 적어 보세요 — 그게 진짜 수집이에요.</p>
+    </div>`:''}
+    <div class="law-card hl" style="margin-top:16px"><div class="art">옆 사람과 3분</div>
+      <div class="sub" style="margin-top:4px">① 네 상황 중 가장 손가락이 오래 멈췄던 순간은 어디였나요? 왜였을까요?<br>② ‘말한 나’와 ‘선택한 나’의 간격이 가장 컸던 곳은 어디였나요?<br>③ 내일 우리 반에서 이것과 가장 비슷하게 일어날 수 있는 일은 뭘까요?</div></div>
+    <div class="spacer"></div>
+    <button class="btn" id="re">물결 지도로 — 다른 길도 걸어 보기</button>
+    <p class="note">같은 상황을 다시 하면 다른 선택의 물결과 다른 유형을 볼 수 있어요. 기록은 처음 한 번만 집계돼요.</p>
+  </section>`);
+  show(sc);
+  dicifyIn(sc, 'p, .gm-sum');
+  sc.querySelector('#mkcard').onclick = ()=>{
+    try{ showCardOverlay(makeResultCard()); }catch(e){}
+  };
+  sc.querySelector('#re').onclick = ()=>navHome();
+}
+
+/* ══════════ 10. 교사용 대시보드 ══════════ */
+function scrTeacher(){
+  const sc = el(`<section class="screen night noback">
+    <div class="eyebrow">너라면 어떻게 할래? · 교사용</div>
+    <h2>우리 반 물결 지도<br>수업 대시보드</h2>
+    <p class="note">학생 화면과 별개입니다. 이 페이지 주소 뒤에 <b>?mode=teacher</b>를 붙이면 언제든 들어올 수 있어요. 모든 수치는 익명 집계입니다. 보호자 안내 화면은 <b>?mode=guide</b>입니다.</p>
+    <div id="body"><p class="note">집계를 불러오는 중…</p></div>
+    <div class="law-card" style="margin-top:20px"><div class="art">권장 수업 흐름 (시나리오당 30~40분)</div>
+      <div class="sub">① 각자 체험(10분) → ② 분포 화면 함께 보기 — “왜 침묵이 많을까?”(5분) → ③ 아래 발문으로 토론(15분) → ④ 헌법 렌즈 함께 읽기(5분) → ⑤ 원하는 학생은 다른 길로 재체험(과제)</div></div>
+    <div class="law-card" style="margin-top:10px"><div class="art">공통 토론 발문</div>
+      <div class="sub">· 침묵을 고른 사람들은 나쁜 사람들일까? 아니라면 무엇이 그들을 조용하게 만들까?<br>· ‘분위기’는 누가 만드는 걸까? 분위기에도 책임이 있을까?<br>· 옳은 선택의 비용(놀림, 어색함, 손해)은 누가 낮춰 줄 수 있을까?<br>· 네 상황의 공통점은 무엇일까? (판정/공유/결정 전에 ‘묻기’가 빠져 있었다는 점)</div></div>
+    <div class="law-card" style="margin-top:10px"><div class="art">유의 사항</div>
+      <div class="sub">· 학생의 유형·걸은 길을 평가나 훈계의 근거로 쓰지 말아 주세요. 솔직함이 이 활동의 재료입니다.<br>· 재체험을 해도 통계는 학생당 처음 한 번만 집계됩니다.</div></div>
+  </section>`);
+  show(sc);
+  fetchStats(stats=>{
+    const body = sc.querySelector('#body'); body.innerHTML='';
+    [1,2,3,4].forEach(n=>{
+      const st = stats && stats[String(n)];
+      const sec = el(`<div style="margin-bottom:26px">
+        <h3 style="font-family:var(--serif);font-size:18px;margin-bottom:10px">${SC_META[n].no} · ${SC_META[n].title} <span class="note" style="display:inline">${st?`— ${st.total}명 참여`:'— 아직 기록 없음'}</span></h3>
+        <div class="bars"></div></div>`);
+      const data = st && st.total>0 ? st.c1 : DEMO[n];
+      const total = Object.values(data).reduce((a,b)=>a+b,0)||1;
+      Object.keys(C1L[n]).forEach((k,i)=>{
+        const v=data[k]||0, pct=Math.round(v/total*100);
+        sec.querySelector('.bars').appendChild(el(`<div>
+          <div class="bar-label"><span>${C1L[n][k]}</span><span>${st?`${v}명 · `:''}${pct}%</span></div>
+          <div class="bar-track"><span class="bar-fill" style="width:${Math.max(pct,3)}%;background:${['#D98E5F','#8A94A6','#6FA8FF','#7FB59B'][i]}"></span></div></div>`));
+      });
+      if(!st || st.total===0) sec.appendChild(el(`<p class="note">위 수치는 예시 분포입니다. 학생 기록이 쌓이면 실제 수치로 바뀝니다.</p>`));
+      body.appendChild(sec);
+    });
+  });
+}
+
+/* ══════════ 시작 ══════════ */
+(function boot(){
+  const mode = new URLSearchParams(location.search).get('mode');
+  if(mode==='teacher'){ NAV=[{fn:scrTeacher,a:[]}]; scrTeacher(); return; }
+  if(mode==='guide'){ NAV=[{fn:scrGuide,a:[]}]; scrGuide(); return; }
+  NAV=[{fn:scrIntro,a:[]}];
+  scrIntro();
+  let seen = true;
+  try{ seen = !!localStorage.getItem('pinu_onb'); }catch(e){}
+  if(!seen) showOnb(true);
+})();
+</script>
+</body>
+</html>
